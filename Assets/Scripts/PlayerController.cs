@@ -54,7 +54,26 @@ public class PlayerController : MonoBehaviour
             if (inputMoveAxis.x!= 0)
             {
                 _sprite.flipX = inputMoveAxis.x > 0 ? true : false;
+                if(inputMoveAxis.x > 0)
+                {
+                    WebSocketClientManager.SendPlayerAction("move", transform.position, "right", inputMoveAxis.x);
+                }
+                else
+                {
+                    WebSocketClientManager.SendPlayerAction("move", transform.position, "left", -inputMoveAxis.x);
+                }
 
+            }
+            if(inputMoveAxis.y != 0)
+            {
+                if (inputMoveAxis.y > 0)
+                {
+                    WebSocketClientManager.SendPlayerAction("move", transform.position, "up", inputMoveAxis.y);
+                }
+                else
+                {
+                    WebSocketClientManager.SendPlayerAction("move", transform.position, "down", -inputMoveAxis.y);
+                }
             }
 
             if (inputMoveAxis.y == 0 && inputMoveAxis.x == 0)
