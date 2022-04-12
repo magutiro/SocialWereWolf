@@ -21,6 +21,7 @@ public class PlayerManager : MonoBehaviour
     {
         // 自プレイヤーの作成
         player = MakePlayer(new Vector3(-3, 3, 0), UserLoginData.userName);
+        player.tag = "Player";
         // WebSocket開始
         StartWebSocket();
     }
@@ -45,9 +46,12 @@ public class PlayerManager : MonoBehaviour
         WebSocketClientManager.recieveCompletedHandler += OnReciveMessage;
 
         // 自プレイヤーの初期情報をWebSocketに送信
-        WebSocketClientManager.SendPlayerAction("connect", new Vector3(-3, 3, 0), "neutral", 0.0f);
+        WebSocketClientManager.SendPlayerAction("connect", new Vector3(-0, 0, 0), "neutral", 0.0f);
     }
-
+    private void OnApplicationQuit()
+    {
+        EndWebsocket();
+    }
     /// <summary>
     /// WebSocketの終了
     /// </summary>
@@ -83,6 +87,7 @@ public class PlayerManager : MonoBehaviour
         // プレイヤーの位置を更新
         foreach (var playerAction in PlayerActionMap.Values)
         {
+            Debug.Log(playerAction.user+ GetMovePos(playerAction));
             // 自分は移動済みなのでスルー
             if (UserLoginData.userName == playerAction.user)
             {
@@ -93,7 +98,7 @@ public class PlayerManager : MonoBehaviour
             if (playerObjectMap.ContainsKey(playerAction.user))
             {
                 playerObjectMap[playerAction.user].transform.position = GetMovePos(playerAction);
-
+                //playerObjectMap[playerAction.user].gameObject.GetComponent<PlayerController>().MovePlayer(GetMovePos(playerAction));
                 // 入室中した他プレイヤーの生成
             }
             else
@@ -101,6 +106,7 @@ public class PlayerManager : MonoBehaviour
                 // 他プレイヤーの作成
                 Debug.Log("play2");
                 var player = MakePlayer(GetMovePos(playerAction), playerAction.user);
+                player.transform.GetChild(0).gameObject.SetActive(false);
 
                 // 他プレイヤーリストへの追加
                 playerObjectMap.Add(playerAction.user, player);
@@ -110,36 +116,6 @@ public class PlayerManager : MonoBehaviour
     /// <summary>
     /// 上ボタン押下時の処理
     /// </summary>
-    /*
-    public void OnClickUpButton()
-    {
-        player.transform.Translate(0, 0, KEY_MOVEMENT);
-    }
-
-    /// <summary>
-    /// 下ボタン押下時の処理
-    /// </summary>
-    public void OnClickDownButton()
-    {
-        player.transform.Translate(0, 0, -1 * KEY_MOVEMENT);
-    }
-
-    /// <summary>
-    /// 左ボタン押下時の処理
-    /// </summary>
-    public void OnClickLeftButton()
-    {
-        player.transform.Translate(-1 * KEY_MOVEMENT, 0, 0);
-    }
-
-    /// <summary>
-    /// 右ボタン押下時の処理
-    /// </summary>
-    public void OnClickRightButton()
-    {
-        player.transform.Translate(KEY_MOVEMENT, 0, 0);
-    }
-
     /// <summary>
     /// 退室ボタン押下時の処理
     /// </summary>
@@ -147,7 +123,7 @@ public class PlayerManager : MonoBehaviour
     {
         // タイトルシーンに戻る
         SceneManager.LoadScene("TitleScene");
-    }*/
+    }
 
     /// <summary>
     /// プレイヤーを作成
@@ -171,11 +147,11 @@ public class PlayerManager : MonoBehaviour
     private Vector3 GetMovePos(PlayerActionData playerAction)
     {
         var pos = new Vector3(playerAction.pos_x, playerAction.pos_y, playerAction.pos_z);
-        pos.y += (playerAction.way == "up") ? playerAction.range : 0;
-        pos.y -= (playerAction.way == "down") ? playerAction.range : 0;
-        pos.x -= (playerAction.way == "left") ? playerAction.range : 0;
-        pos.x += (playerAction.way == "right") ? playerAction.range : 0;
-
+        
+        pos.y += (playerAction.way == "up") ? playerAction.range /40 : 0;
+        pos.y -= (playerAction.way == "down") ? playerAction.range / 40 : 0;
+        pos.x -= (playerAction.way == "left") ? playerAction.range / 40 : 0;
+        pos.x += (playerAction.way == "right") ? playerAction.range / 40 : 0;
         return pos;
     }
 }

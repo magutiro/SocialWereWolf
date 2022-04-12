@@ -16,14 +16,16 @@ public class WebSocketClientManager
     {
         if (webSocket == null)
         {
-            
-                webSocket = new WebSocket("ws://192.168.11.21:4114");
-                webSocket.OnOpen += (sender, e) => { Debug.Log("open"); };
-                webSocket.OnError += (sender, e) => { Debug.Log("miss"); };
 
-                webSocket.OnMessage += (sender, e) => RecieveAllUserAction(e.Data);
-                //webSocket.Connect();
-
+#if UNITY_ANDROID
+            webSocket = new WebSocket("ws://119.242.252.212:4115/");
+#else
+            webSocket = new WebSocket("ws://localhost:4115/");
+#endif
+            webSocket.OnOpen += (sender, e) => { Debug.Log("open"); };
+            webSocket.OnError += (sender, e) => { Debug.Log("miss"); }; 
+            webSocket.OnMessage += (sender, e) => RecieveAllPlayerAction(e.Data);
+            webSocket.Connect();
         }
     }
 

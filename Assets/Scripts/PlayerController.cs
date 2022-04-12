@@ -40,10 +40,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!ishit)
+        rgd2D.velocity = Vector3.zero;
+        moveVector = Vector3.zero;
+        if (!ishit && gameObject.tag=="Player")
         {
-            rgd2D.velocity = Vector3.zero;
-            moveVector = Vector3.zero;
             // ‰¡–îˆóƒL[‚Ì‰Ÿ‚³‚ê‚Ä‚¢‚éó‹µ‚ğæ“¾
             var inputMoveAxis = move.ReadValue<Vector2>();
             /*
@@ -53,14 +53,13 @@ public class PlayerController : MonoBehaviour
 
             if (inputMoveAxis.x!= 0)
             {
-                _sprite.flipX = inputMoveAxis.x > 0 ? true : false;
                 if(inputMoveAxis.x > 0)
                 {
                     WebSocketClientManager.SendPlayerAction("move", transform.position, "right", inputMoveAxis.x);
                 }
                 else
                 {
-                    WebSocketClientManager.SendPlayerAction("move", transform.position, "left", -inputMoveAxis.x);
+                    WebSocketClientManager.SendPlayerAction("move", transform.position, "left", inputMoveAxis.x);
                 }
 
             }
@@ -72,7 +71,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    WebSocketClientManager.SendPlayerAction("move", transform.position, "down", -inputMoveAxis.y);
+                    WebSocketClientManager.SendPlayerAction("move", transform.position, "down", inputMoveAxis.y);
                 }
             }
 
@@ -86,11 +85,21 @@ public class PlayerController : MonoBehaviour
 
                 moveVector.x = inputMoveAxis.x;
                 moveVector.y = inputMoveAxis.y;
-                moveVector = moveVector.normalized;
-                rgd2D.velocity = moveVector * _player._playerSpeed;
-
+                MovePlayer(moveVector);
+                //transform.Translate(moveVector / 40);
             }
         }
+    }
+
+    public void MovePlayer(Vector3 pos)
+    {
+        pos = pos.normalized;
+        rgd2D.velocity = pos * _player._playerSpeed;
+        FlipChange(pos.x);
+    }
+    public void FlipChange(float x)
+    {
+        _sprite.flipX = x > 0 ? true : false;
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
