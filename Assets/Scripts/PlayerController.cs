@@ -30,8 +30,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     Player _player;
     GameObject parent;
-
-    VivoxManager _vivoxManager;
+    public  VivoxManager _vivoxManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -127,8 +126,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             _sprite.color = Color.red;
         }
-        Debug.Log(message);
-        Debug.Log(Tname + UserLoginData.userName);
     }
     void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {

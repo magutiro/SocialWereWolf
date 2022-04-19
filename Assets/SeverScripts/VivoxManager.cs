@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using VivoxUnity;
+using UnityEngine.SceneManagement;
 public class VivoxManager : MonoBehaviour
 {
     private Client _client = null;
@@ -61,6 +62,8 @@ public class VivoxManager : MonoBehaviour
     private ILoginSession _loginSession = null;
     void Start()
     {
+        // イベントにイベントハンドラーを追加
+        SceneManager.activeSceneChanged += OnActiveSceneChanged;
         channel = new Channel3DProperties(audibleDistance,conversationalDistance,audioFadeIntensityByDistanceaudio,AudioFadeModel.LinearByDistance);
         Login();
     }
@@ -75,8 +78,13 @@ public class VivoxManager : MonoBehaviour
     private void Awake()
     {
         CreateAccount("adcde"+ UserLoginData.userName, UserLoginData.userName);
+        Debug.Log("クライアント作成");
         _client = new Client();
         _client.Initialize();
+    }
+    public void UninitializeClient()
+    {
+        _client.Uninitialize();
     }
     /// <summary>
     /// アカウントを作成
@@ -268,5 +276,25 @@ public class VivoxManager : MonoBehaviour
             _client.Uninitialize();
             _client = null;
         }
+    }
+
+    public bool SetMute(bool isMute)
+    {
+        if (_client != null)
+        {
+            _client.AudioInputDevices.Muted = isMute;
+            return true;
+        }
+        return false;
+    }
+    public bool GetMute()
+    {
+        return _client.AudioInputDevices.Muted;
+    }
+    // イベントハンドラー（イベント発生時に動かしたい処理）
+    void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
+    {
+        //Debug.Log("シーン読み込みクライアント削除");
+        //_client.Uninitialize();
     }
 }
