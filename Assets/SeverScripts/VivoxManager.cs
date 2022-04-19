@@ -49,11 +49,11 @@ public class VivoxManager : MonoBehaviour
     /// ‰¹º‚Ì‹——£‚È‚Ç‚Ì’è‹`
     /// </summary>
     [SerializeField]
-    private int audibleDistance;
+    private int audibleDistance = 10;
     [SerializeField]
-    private int conversationalDistance;
+    private int conversationalDistance = 1;
     [SerializeField]
-    float audioFadeIntensityByDistanceaudio;
+    float audioFadeIntensityByDistanceaudio = 1.2f;
 
     Channel3DProperties channel;
     private AccountId _accountId = null;

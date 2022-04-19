@@ -5,6 +5,7 @@ using Photon.Pun;
 using UnityEngine.UI;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
+using UnityEngine.SceneManagement;
 public class GameState
 {
     public enum gameState
@@ -21,7 +22,8 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _timeText = GameObject.Find("TimeText").GetComponent<Text>();
+        if(SceneManager.GetActiveScene().name == "InGameScene")
+            _timeText = GameObject.Find("TimeText").GetComponent<Text>();
     }
 
     // Update is called once per frame

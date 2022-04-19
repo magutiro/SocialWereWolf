@@ -12,13 +12,13 @@ public class TitleManager : MonoBehaviour
     private AsyncOperation async;
     //　シーンロード中に表示するUI画面
     [SerializeField]
-    private GameObject loadUI;
+    private GameObject loadUI = null;
     //　タイトルに表示するUI画面
     [SerializeField]
-    private GameObject titleUI;
+    private GameObject titleUI = null;
     //　読み込み率を表示するスライダー
     [SerializeField]
-    private Slider slider;
+    private Slider slider = null;
     // Start is called before the first frame update
     void Start()
     {

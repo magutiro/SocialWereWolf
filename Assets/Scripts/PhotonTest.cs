@@ -9,10 +9,10 @@ public class PhotonTest : MonoBehaviourPunCallbacks
 {
     //　シーンロード中に表示するUI画面
     [SerializeField]
-    private GameObject loadUI;
+    private GameObject loadUI = null;
     //　タイトルに表示するUI画面
     [SerializeField]
-    private GameObject inGameUI;
+    private GameObject inGameUI = null;
 
     private GameObject playerPrefab = null;
     // Start is called before the first frame update
