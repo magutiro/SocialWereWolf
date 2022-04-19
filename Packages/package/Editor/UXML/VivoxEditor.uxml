@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+>
+	<engine:VisualElement name="VivoxTitleContainer" class="info-container">
+		<engine:Label text="Vivox" class="title" />
+		<engine:Label text="Deliver the best voice and text communications for your player's with Unity's managed solution." class="description" />
+		<engine:VisualElement name="Author" class="horizontal-group">
+			<engine:Label text="Author:" class="label" />
+			<engine:Label text="Unity Technologies Inc." class="info" />
+		</engine:VisualElement>
+		<engine:Button text="Documentation" name="DocumentationLinkButton" class="link-button" />
+	</engine:VisualElement>
+	<engine:Box class="separator" />
+	<engine:VisualElement name="ConfigurationContainer" class="info-container">
+		<engine:Label text="Credential Configuration" class="title" />
+		<engine:Label text="Use your credentials to connect to your Vivox service." class="description_no_bottom" />
+		<engine:VisualElement name="DashboardInfo" class="horizontal-group">
+			<engine:Label text="You can find these credentials in the " class ="description_no_top" />
+			<engine:Button text="Dashboard" name="DashboardLinkButton" class="inline-link-button" />
+			<engine:Label text="." class="word" />
+		</engine:VisualElement>
+		<engine:Box name="CredentialsBox" class="credentials-box">
+			<editor:EnumField label="Environment" name="EnvironmentVar" />
+			<engine:TextField label="Server" name="ServerVar" value="" />
+			<engine:TextField label="Domain" name="DomainVar" value="" />
+			<engine:TextField label="Token Issuer" name="IssuerVar" value="" />
+			<engine:TextField label="Token Key" name="KeyVar" value="" />
+		</engine:Box>
+		<engine:VisualElement name="ConnectionGroup" class="horizontal-group">
+			<engine:Button text="Check Connection" name="ConnectionButton" class="small-button" />
+			<engine:Image name="ConnectionImage" class="integrated-check-icon" />
+			<engine:Label name="ConnectionStatusLabel" text="" class="check-label" />
+		</engine:VisualElement>
+	</engine:VisualElement>
+</engine:UXML>
