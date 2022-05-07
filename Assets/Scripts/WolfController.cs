@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Photon.Pun;
 
-public class WolfController : MonoBehaviourPunCallbacks
+public class WolfController : MonoBehaviour
 {
     public UIController _uIController;
     public float killDistance = 5;
@@ -17,7 +16,12 @@ public class WolfController : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        if (_uIController._targetPlayer)
+        if(!_uIController)
+        {
+            _uIController = GameObject.Find("UIController").GetComponent<UIController>();
+        }
+
+        if (_uIController && _uIController._targetPlayer)
         {
             float distance = (_uIController._targetPlayer.transform.position - transform.position).sqrMagnitude;
             if (distance > killDistance)

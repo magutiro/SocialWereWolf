@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
-using Photon.Pun;
-public class PlayerManager : MonoBehaviourPunCallbacks
-{
+public class PlayerManager : MonoBehaviour { 
     public List<string> _playerNames;
     // Start is called before the first frame update
     void Start()

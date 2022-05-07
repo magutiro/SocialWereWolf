@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Photon.Pun;
-using Photon.Realtime;
+using Unity.Netcode;
 
 public class UIController : MonoBehaviour
 {
@@ -30,11 +29,14 @@ public class UIController : MonoBehaviour
     }
     public void OnStartButton()
     {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            
-            PhotonNetwork.LoadLevel("InGameScene");
-        }
+        NetworkManager.Singleton.SceneManager.LoadScene("InGameScene", LoadSceneMode.Single);
     }
+
+    //[ServerRpc]
+    void Scene()
+    {
+        
+    }
+
 
 }

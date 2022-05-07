@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using Photon.Pun;
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class Player
 {
@@ -18,10 +19,10 @@ public class Player
         this._playerHP = hp;
     }
 }
-public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
+public class PlayerController : NetworkBehaviour
 {
     bool ishit = false;
-    Vector3 moveVector;
+    private Vector3 _moveVector;
 
     Rigidbody2D rgd2D;
     SpriteRenderer _sprite;
@@ -30,33 +31,49 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     Player _player;
     GameObject parent;
+
     public  VivoxManager _vivoxManager;
     // Start is called before the first frame update
     void Start()
     {
+        _player = new Player(10f, 2, 20);
+        SceneManager.sceneLoaded += SceneUnloaded;
+        Initialization();
+    }
+    private void Initialization()
+    {
+        //新しいInputシステム
         var playerInput = GetComponent<PlayerInput>();
-        move = playerInput.actions["Move"]; // ← "Move" Actionを利用する。
+        move = playerInput.actions["Move"]; // "Move" Actionを利用する。
+
         rgd2D = GetComponent<Rigidbody2D>();
         _sprite = GetComponent<SpriteRenderer>();
-        _player = new Player(10f,2,20);
 
         parent = GameObject.Find("PlayerManager");
         joystick = GameObject.Find("Fixed Joystick").GetComponent<FixedJoystick>();
-        gameObject.transform.parent = parent.gameObject.transform;
         _vivoxManager = parent.GetComponent<VivoxManager>();
 
         var otherNameText = transform.Find("Name").gameObject;
-        otherNameText.GetComponent<TextMesh>().text = $"{photonView.Owner.NickName}({photonView.OwnerActorNr})";
+        otherNameText.GetComponent<TextMesh>().text = UserLoginData.userName;
 
-        if (!photonView.IsMine)
+        if (!IsOwner)
         {
             transform.GetChild(0).gameObject.SetActive(false);
         }
-
+        Debug.Log("初期化");
+    }
+    void SceneUnloaded(Scene scene, LoadSceneMode mode)
+    {
+        Initialization();
     }
     void Awake()
     {
-        if (_vivoxManager)
+        if (!_vivoxManager)
+        {
+            parent = GameObject.Find("PlayerManager");
+            _vivoxManager = parent.GetComponent<VivoxManager>();
+        }
+        if (IsOwner && _vivoxManager)
         {
             _vivoxManager.JoinChannel("test1", VivoxUnity.ChannelType.Positional);
             Debug.Log("joinVC");
@@ -67,40 +84,52 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     void Update()
     {
         rgd2D.velocity = Vector3.zero;
-        moveVector = Vector3.zero;
-        if (!ishit && gameObject.tag=="Player" && photonView.IsMine)
+        _moveVector = Vector3.zero;
+        if (!ishit && IsOwner)
         {
             // 横矢印キーの押されている状況を取得
             var inputMoveAxis = move.ReadValue<Vector2>();
+            //キーボードの入力か仮想パットの入力を取得
             inputMoveAxis.x = inputMoveAxis.x == 0 ? joystick.Horizontal : inputMoveAxis.x;
             inputMoveAxis.y = inputMoveAxis.y == 0 ? joystick.Vertical : inputMoveAxis.y;
+            //入力がない場合に動きを止める
             if (inputMoveAxis.y == 0 && inputMoveAxis.x == 0)
             {
                 rgd2D.velocity = Vector3.zero;
-                moveVector = Vector3.zero;
+                _moveVector = Vector3.zero;
             }
             else
             {
-                //print("Horizontal: " + joystick.Horizontal);
-                //print("Vertical: " + joystick.Vertical);
-
-                moveVector.x = inputMoveAxis.x;
-                moveVector.y = inputMoveAxis.y;
-                MovePlayer(moveVector);
-                //transform.Translate(moveVector / 40);
+                //サーバー側に入力Vectorを送信
+                SetMoveInputServerRPc(inputMoveAxis);
             }
         }
+        if (IsServer)
+        {
+            // サーバー側は移動処理を実行
+            MovePlayer();
+        }
+        /*
         if (!photonView.IsMine)
         {
             FlipChange(rgd2D.velocity.x);
         }
+        */
     }
-
-    public void MovePlayer(Vector3 pos)
+    /// <summary>
+    /// [ServerRpc]を使うことで、サーバー側で実行されるメソッドになる
+    /// </summary>
+    [ServerRpc]
+    private void SetMoveInputServerRPc(Vector2 Axis)
     {
-        pos = pos.normalized;
-        rgd2D.velocity = pos * _player._playerSpeed;
-        FlipChange(pos.x);
+        _moveVector = Axis;
+        FlipChange(_moveVector.x); 
+    }
+    public void MovePlayer()
+    {
+        _moveVector = _moveVector.normalized;
+        rgd2D.velocity = _moveVector * _player._playerSpeed;
+        FlipChange(_moveVector.x);
     }
     public void FlipChange(float x)
     {
@@ -116,38 +145,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     public bool Killed(string name)
     {
-        photonView.RPC(nameof(RpcSendMessage), RpcTarget.AllViaServer, photonView.Owner.NickName+"が" +name+"にkillされました", photonView.Owner.NickName);
         return false;
-    }
-    [PunRPC]
-    private void RpcSendMessage(string message, string Tname, PhotonMessageInfo info)
-    {
-        if(Tname == UserLoginData.userName)
-        {
-            _sprite.color = Color.red;
-        }
-    }
-    void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        if (stream.IsWriting)
-        {
-            // 自身のアバターの色を送信する
-            stream.SendNext(_sprite.color.r);
-            stream.SendNext(_sprite.color.g);
-            stream.SendNext(_sprite.color.b);
-            stream.SendNext(_sprite.color.a);
-            stream.SendNext(_sprite.flipX);
-        }
-        else
-        {
-            // 他プレイヤーのアバターの色を受信する
-            float r = (float)stream.ReceiveNext();
-            float g = (float)stream.ReceiveNext();
-            float b = (float)stream.ReceiveNext();
-            float a = (float)stream.ReceiveNext();
-            _sprite.color = new Vector4(r, g, b, a);
-            _sprite.flipX = (bool)stream.ReceiveNext();
-        }
     }
 
 }

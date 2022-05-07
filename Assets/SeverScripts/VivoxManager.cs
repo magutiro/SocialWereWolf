@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using VivoxUnity;
 using UnityEngine.SceneManagement;
+using UniRx;
 public class VivoxManager : MonoBehaviour
 {
     private Client _client = null;
@@ -62,10 +63,19 @@ public class VivoxManager : MonoBehaviour
     private ILoginSession _loginSession = null;
     void Start()
     {
+        DontDestroyOnLoad(gameObject);
         // イベントにイベントハンドラーを追加
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
-        channel = new Channel3DProperties(audibleDistance,conversationalDistance,audioFadeIntensityByDistanceaudio,AudioFadeModel.LinearByDistance);
-        Login();
+        if (channel is null)
+        {
+            channel = new Channel3DProperties(audibleDistance, conversationalDistance, audioFadeIntensityByDistanceaudio, AudioFadeModel.LinearByDistance);
+        }
+        if (_loginSession is null)
+        {
+            Login();
+        }
+        _ear.ObserveEveryValueChanged(_ => _.position)
+            .Subscribe(_ => Set3DChannel());
     }
 
     void Update()
@@ -77,10 +87,13 @@ public class VivoxManager : MonoBehaviour
     }
     private void Awake()
     {
-        CreateAccount("adcde"+ UserLoginData.userName, UserLoginData.userName);
-        Debug.Log("クライアント作成");
-        _client = new Client();
-        _client.Initialize();
+        if(_accountId is null)
+        {
+            CreateAccount("adcde" + UserLoginData.userName, UserLoginData.userName);
+            Debug.Log("クライアント作成");
+            _client = new Client();
+            _client.Initialize();
+        }
     }
     public void UninitializeClient()
     {
@@ -228,7 +241,11 @@ public class VivoxManager : MonoBehaviour
                 }
             }
         }
-        if (_loginSession != null)
+        
+    }
+    private void Set3DChannel()
+    {
+        if (_loginSession != null && _mouth != null)
         {
             // MEMO: 本来は毎フレーム呼ぶようなことはしない
             foreach (var channelSession in _loginSession.ChannelSessions.Where(x => x.Channel.Type == ChannelType.Positional && x.AudioState == ConnectionState.Connected))
@@ -236,6 +253,7 @@ public class VivoxManager : MonoBehaviour
                 channelSession.Set3DPosition(_mouth.position, _ear.position, _ear.forward, _ear.up);
             }
         }
+
     }
     private void OnChannelStateChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
     {
@@ -295,6 +313,7 @@ public class VivoxManager : MonoBehaviour
     void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
     {
         //Debug.Log("シーン読み込みクライアント削除");
+        //Logout();
         //_client.Uninitialize();
     }
 }

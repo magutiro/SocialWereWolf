@@ -111,8 +111,8 @@ GameObject:
   - component: {fileID: 5486438273854066259}
   - component: {fileID: 5486438273854066254}
   - component: {fileID: 6420247488996781412}
-  - component: {fileID: 9105895260149120919}
-  - component: {fileID: 8098644185227276229}
+  - component: {fileID: -3208178978080208253}
+  - component: {fileID: 6698140796680450584}
   m_Layer: 0
   m_Name: Player
   m_TagString: OtherPlayer
@@ -282,6 +282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b9caab76dd09b4a950475c87f52b44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _vivoxManager: {fileID: 0}
 --- !u!114 &6420247488996781412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,7 +297,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uIController: {fileID: 0}
   killDistance: 50
---- !u!114 &9105895260149120919
+--- !u!114 &-3208178978080208253
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -305,22 +306,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 5486438273854066249}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: 5486438273854066254}
-  - {fileID: 8098644185227276229}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &8098644185227276229
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 0
+  SyncRotAngleY: 0
+  SyncRotAngleZ: 0
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  InLocalSpace: 0
+  Interpolate: 1
+--- !u!114 &6698140796680450584
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,13 +332,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5486438273854066249}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &5486438275156418328
 GameObject:
   m_ObjectHideFlags: 0
