@@ -22,7 +22,7 @@ public class GameStateReactiveProperty : ReactiveProperty<GameState>
     public GameStateReactiveProperty() { }
 
     public GameStateReactiveProperty(GameState initialValue) : base(initialValue) { }
-    
+
 }
 public class GameController : NetworkBehaviour
 {
@@ -74,22 +74,23 @@ public class GameController : NetworkBehaviour
     private void SetPlayerCountServerRpc()
     {
         Dictionary<int, string> vueDictionary = _playerId.ToDictionary(pair => pair.Key, pair => pair.Value);
-        foreach(var dir in vueDictionary)
+        foreach (var dir in vueDictionary)
         {
-            SetPlayerDictionaryClientRpc(dir.Key,dir.Value);
+            SetPlayerDictionaryClientRpc(dir.Key, dir.Value);
         }
-        _playerCount.Value++; 
+        _playerCount.Value++;
     }
 
     [Unity.Netcode.ClientRpc]
     private void SetPlayerDictionaryClientRpc(int key, string value)
     {
-        _playerId.Add(key,value);
+        _playerId.Add(key, value);
     }
     // Start is called before the first frame update
     void Start()
     {
-        if(SceneManager.GetActiveScene().name == "InGameScene") {
+        if (SceneManager.GetActiveScene().name == "InGameScene")
+        {
             _timeText = GameObject.Find("TimeText").GetComponent<Text>();
         }
         //ÉQÅ[ÉÄÇÃèÛë‘Ç™ïœâªÇµÇΩÇ∆Ç´Ç…Init()Çé¿çs
@@ -119,7 +120,7 @@ public class GameController : NetworkBehaviour
         }
         //xxÅFxx
         _timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
-        
+
     }
     void Init()
     {
@@ -225,5 +226,5 @@ public class GameController : NetworkBehaviour
             _gameState.Value = GameState.Morning;
         }
     }
-    
+
 }

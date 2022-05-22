@@ -29,13 +29,13 @@ public class UIController : MonoBehaviour
     }
     public void OnStartButton()
     {
-        NetworkManager.Singleton.SceneManager.LoadScene("InGameScene", LoadSceneMode.Single);
+        SceneServerRpc();
     }
 
-    //[ServerRpc]
-    void Scene()
+    [ServerRpc]
+    void SceneServerRpc()
     {
-        
+        NetworkManager.Singleton.SceneManager.LoadScene("InGameScene", LoadSceneMode.Single);
     }
 
 

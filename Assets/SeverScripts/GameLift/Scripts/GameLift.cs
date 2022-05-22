@@ -389,8 +389,10 @@ public class GameLiftClient
     // default alias - command line overrides, use --alias alias-0c67a845-bc6e-4885-a3f6-40f1d2268234
     // or change the default below and rebuild the client (case sensitive command line)
     //    buildconfig Client
-    public string aliasId = "alias-0c67a845-bc6e-4885-a3f6-40f1d2268234";
+    public string aliasId = "alias-39588a5a-c9ac-4335-84de-fe3e1d59f76e";
+
     public static readonly string profileName = "demo-gamelift-unity";
+
     public AmazonGameLiftClient aglc = null;
 
     public void CreateGameLiftClient()
@@ -401,6 +403,7 @@ public class GameLiftClient
         try
         {
             CredentialProfile profile = null;
+
             var nscf = new SharedCredentialsFile();
             nscf.TryGetProfile(profileName, out profile);
             AWSCredentials credentials = profile.GetAWSCredentials(null);
@@ -430,6 +433,7 @@ public class GameLiftClient
 
     public GameLiftClient(GameLift _gl)
     {
+        Debug.Log("gameliftOn");
         gl = _gl;
         playerId = Guid.NewGuid().ToString();
         Credentials.Install();
@@ -482,6 +486,7 @@ public class GameLiftClient
 
     public void Start()
     {
+        Debug.Log("start client");
     }
 
     public Amazon.GameLift.Model.PlayerSession CreatePlayerSession(Amazon.GameLift.Model.GameSession gsession)

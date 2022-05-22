@@ -21,6 +21,7 @@ public class NetcodeServerManager : MonoBehaviour
     }
     private void Awake()
     {
+        connectInfo = new ConnectInfo();
         Application.targetFrameRate = 60;
         NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
     }
@@ -32,10 +33,10 @@ public class NetcodeServerManager : MonoBehaviour
             Debug.Log("StartServer");
             StartServer();
         }
-#else
         
 #endif
     }
+#if CLIENT
     void OnGUI()
     {
         GUILayout.BeginArea(new Rect(10, 10, 150, 220));
@@ -47,9 +48,10 @@ public class NetcodeServerManager : MonoBehaviour
         {
             StatusLabels();
         }
-
         GUILayout.EndArea();
     }
+
+#endif
     private void StartButtons()
     {
         if (GUILayout.Button("Server"))
@@ -76,16 +78,6 @@ public class NetcodeServerManager : MonoBehaviour
             OnClickGameLiftConnect();
         }
 #endif
-        /*
-        GUILayout.Label("IpAddress");
-        _textIpAddress = GUILayout.TextField(_textIpAddress);
-
-        GUILayout.Label("Port");
-        _port = GUILayout.TextField(_port);
-
-        GUILayout.Label("PlayerName");
-        _playerName = GUILayout.TextField(_playerName);
-        */
     }//クライアントの接続を承認する？
     private void ApprovalCheck(byte[] connectionData, ulong clientId, NetworkManager.ConnectionApprovedDelegate callback)
     {
@@ -156,35 +148,35 @@ public class NetcodeServerManager : MonoBehaviour
     public void OnClickGameLiftConnect()
     {
 
-#if CLIENT   
-            // try to connect to gamelift
-            //ローカルサーバが無ければGameLiftに接続する
-            if (gameLift.client!=null)
+#if CLIENT
+        // try to connect to gamelift
+        //ローカルサーバが無ければGameLiftに接続する
+        if (gameLift.client != null)
+        {
+            string ip = null;
+            int port = -1;
+            string auth = null;
+            gameLift.GetConnectionInfo(ref ip, ref port, ref auth); // sets GameliftStatus
+
+            if (gameLift.gameliftStatus)// TryConnect(ip, port, auth); //GameLiftからip、ポート、認証をゲットしたので接続
             {
-                string ip = null;
-                int port = -1;
-                string auth = null;
-                gameLift.GetConnectionInfo(ref ip, ref port, ref auth); // sets GameliftStatus
- 
-                if (gameLift.gameliftStatus)// TryConnect(ip, port, auth); //GameLiftからip、ポート、認証をゲットしたので接続
-                {
-                    Debug.Log("GameLiftからIP取得！ ip:" + ip + " port:" + port + " auth:" + auth);
-                    this.connectInfo.useRelay = false;
-                    this.connectInfo.ipAddr = ip;
-                    this.connectInfo.port = port;
-                    this.connectInfo.playerName = "";
- 
-                    ApplyConnectInfoToNetworkManager();
- 
-                    NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(auth); //セッションＩＤをカスタムデータとして送信
- 
-                    // ClientManagerでMLAPIのコールバック等を設定
-                    //this.clientManager.Setup();
-                    // MLAPIでクライアントとして起動
-                    var tasks = NetworkManager.Singleton.StartClient();
-                    //this.clientManager.SetSocketTasks(tasks);
-                }
+                Debug.Log("GameLiftからIP取得！ ip:" + ip + " port:" + port + " auth:" + auth);
+                //this.connectInfo.useRelay = false;
+                this.connectInfo.ipAddr = ip;
+                this.connectInfo.port = port;
+                this.connectInfo.playerName = UserLoginData.userName;
+
+                ApplyConnectInfoToNetworkManager();
+                Debug.Log(ip);
+                NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(auth); //セッションＩＤをカスタムデータとして送信
+
+                // ClientManagerでMLAPIのコールバック等を設定
+                //this.clientManager.Setup();
+                // MLAPIでクライアントとして起動
+                var tasks = NetworkManager.Singleton.StartClient();
+                //this.clientManager.SetSocketTasks(tasks);
             }
+        }
 #elif !GAMELIFT
         Debug.Log("GAMELIFTのプリプロセッサ定義がありません");
 #endif
@@ -200,7 +192,7 @@ public class NetcodeServerManager : MonoBehaviour
         if (unetTransport != null)
         {
             // relayサーバー使用するか？
-            unetTransport.runInEditMode = this.connectInfo.useRelay;
+            //unetTransport. = this.connectInfo.useRelay;
 
             if (this.connectInfo.useRelay)
             {
@@ -231,7 +223,22 @@ public class NetcodeServerManager : MonoBehaviour
     }
     void OnStartServer()
     {
-        
+        var clientId = NetworkManager.Singleton.LocalClientId;
+        // hostならば生成します
+        if (NetworkManager.Singleton.IsHost)
+        {
+            SpawnCharacter(clientId);
+        }
+    }
+    private void SpawnCharacter(ulong clientId)
+    {
+        var netMgr = NetworkManager.Singleton;
+        var networkedPrefab = netMgr.NetworkConfig.PlayerPrefab;
+        var randomPosition = new Vector3(UnityEngine.Random.Range(-7, 7), 5.0f, UnityEngine.Random.Range(-7, 7));
+        var gmo = GameObject.Instantiate(networkedPrefab, randomPosition, Quaternion.identity);
+        var netObject = gmo.GetComponent<NetworkObject>();
+        // このNetworkオブジェクトをクライアントでもSpawnさせます
+        netObject.SpawnWithOwnership(clientId);
     }
 
     private void StatusLabels()

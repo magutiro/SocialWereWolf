@@ -98,6 +98,21 @@ public class ServerMessage : MonoBehaviour
     }
     void OnStartServer()
     {
-
+        var clientId = NetworkManager.Singleton.LocalClientId;
+        // hostならば生成します
+        if (NetworkManager.Singleton.IsHost)
+        {
+            //SpawnCharacter(clientId);
+        }
+    }
+    private void SpawnCharacter(ulong clientId)
+    {
+        var netMgr = NetworkManager.Singleton;
+        var networkedPrefab = netMgr.NetworkConfig.PlayerPrefab;
+        var randomPosition = new Vector3(UnityEngine.Random.Range(-7, 7), 5.0f, UnityEngine.Random.Range(-7, 7));
+        var gmo = GameObject.Instantiate(networkedPrefab, randomPosition, Quaternion.identity);
+        var netObject = gmo.GetComponent<NetworkObject>();
+        // このNetworkオブジェクトをクライアントでもSpawnさせます
+        netObject.SpawnWithOwnership(clientId);
     }
 }

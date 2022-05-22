@@ -57,7 +57,7 @@ public class PlayerController : NetworkBehaviour
         SceneManager.sceneLoaded += SceneUnloaded;
         if (IsOwner)
         {
-            setNameServerRpc(UserLoginData.userName);
+            //setNameServerRpc(UserLoginData.userName);
         }
         Initialization();
     }
@@ -86,7 +86,7 @@ public class PlayerController : NetworkBehaviour
         {
             transform.GetChild(0).gameObject.SetActive(false);
         }
-        
+
         Debug.Log("初期化");
     }
     void SceneUnloaded(Scene scene, LoadSceneMode mode)
@@ -175,10 +175,10 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-        /// <summary>
-        /// [ServerRpc]を使うことで、サーバー側で実行されるメソッドになる
-        /// メソッド名の語尾にServerRpcがない場合エラーとなる
-        /// </summary>
+    /// <summary>
+    /// [ServerRpc]を使うことで、サーバー側で実行されるメソッドになる
+    /// メソッド名の語尾にServerRpcがない場合エラーとなる
+    /// </summary>
     [ServerRpc]
     private void SetMoveInputServerRpc(Vector2 Axis)
     {
@@ -206,7 +206,7 @@ public class PlayerController : NetworkBehaviour
     public void FlipChangeClientRpc(float x)
     {
         if (_sprite == null) return;
-        if(x == 0)
+        if (x == 0)
         {
             _sprite.flipX = _sprite.flipX;
         }
@@ -225,7 +225,7 @@ public class PlayerController : NetworkBehaviour
     void KillClientRpc(string name)
     {
         _sprite.color = Color.red;
-        Debug.Log(UserLoginData.userName+"が"+name+"に殺されました");
+        Debug.Log(UserLoginData.userName + "が" + name + "に殺されました");
     }
 
 }
