@@ -23,7 +23,7 @@ public class NetcodeServerManager : MonoBehaviour
     {
         connectInfo = new ConnectInfo();
         Application.targetFrameRate = 60;
-        NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
+        //NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
     }
     private void Update()
     {

@@ -90,7 +90,7 @@ public class GameLift : MonoBehaviour
     {
         Debug.Log(":) GAMELIFT START");
 #if SERVER
-        server.Start();
+        //server.Start();
 #endif
 #if CLIENT
         client.Start();
