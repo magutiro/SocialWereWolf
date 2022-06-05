@@ -13,6 +13,7 @@ public class DeviceTest : MonoBehaviour
 
     public VivoxManager _vivox = null;
     // Start is called before the first frame update
+#if CLIENT
     void Start()
     {
         _vivox = GameObject.Find("PlayerManager").GetComponent<VivoxManager>();
@@ -44,4 +45,5 @@ public class DeviceTest : MonoBehaviour
             }
         }
     }
+#endif
 }

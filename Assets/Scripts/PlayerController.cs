@@ -122,6 +122,7 @@ public class PlayerController : NetworkBehaviour
     }
     void Awake()
     {
+#if CLIENT
         if (!_vivoxManager)
         {
             parent = GameObject.Find("PlayerManager");
@@ -132,6 +133,7 @@ public class PlayerController : NetworkBehaviour
             _vivoxManager.JoinChannel("test1", VivoxUnity.ChannelType.Positional);
             Debug.Log("joinVC");
         }
+#endif
     }
 
     // Update is called once per frame
@@ -159,8 +161,8 @@ public class PlayerController : NetworkBehaviour
             {
                 //サーバー側に入力Vectorを送信
                 _moveVector = inputMoveAxis;
-                SetMoveInputServerRpc(inputMoveAxis);
-                MovePlayerServerRpc();
+                //SetMoveInputServerRpc(inputMoveAxis);
+                //MovePlayerServerRpc();
             }
         }
         if (IsServer)

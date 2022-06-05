@@ -152,7 +152,8 @@ public class GameLiftServer
     }
 
     public void Awake()
-    {
+    { 
+        
         //ログをGameLiftに出力
         mLogFilePath = System.IO.Path.Combine(Application.dataPath, Guid.NewGuid().ToString("N") + ".log");
         var stream = new System.IO.FileStream(mLogFilePath, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write);
@@ -161,6 +162,7 @@ public class GameLiftServer
         mLogFileWriter.AutoFlush = true;
 
         Application.logMessageReceived += LogCallback;
+        
     }
 
     void LogCallback(string condition, string stackTrace, LogType type)
@@ -389,7 +391,9 @@ public class GameLiftClient
     // default alias - command line overrides, use --alias alias-0c67a845-bc6e-4885-a3f6-40f1d2268234
     // or change the default below and rebuild the client (case sensitive command line)
     //    buildconfig Client
-    public string aliasId = "alias-39588a5a-c9ac-4335-84de-fe3e1d59f76e";
+
+    public string aliasId = "alias-c3af092c-6ae4-479f-85bc-41c5cadb4c28";
+    //public string aliasId = "alias-123";
 
     public static readonly string profileName = "demo-gamelift-unity";
 
@@ -399,6 +403,10 @@ public class GameLiftClient
     {
         var config = new AmazonGameLiftConfig();
         config.RegionEndpoint = Amazon.RegionEndpoint.APNortheast1;
+
+        //config.ServiceURL = "http://localhost:1935";
+        
+
         Debug.Log("GL372");
         try
         {
@@ -496,6 +504,9 @@ public class GameLiftClient
             var cpsreq = new Amazon.GameLift.Model.CreatePlayerSessionRequest();
             cpsreq.GameSessionId = gsession.GameSessionId;
             cpsreq.PlayerId = playerId;
+
+            
+
             Amazon.GameLift.Model.CreatePlayerSessionResponse cpsres = aglc.CreatePlayerSession(cpsreq);
             string psid = cpsres.PlayerSession != null ? cpsres.PlayerSession.PlayerSessionId : "N/A";
             Debug.Log((int)cpsres.HttpStatusCode + " PLAYER SESSION CREATED: " + psid);

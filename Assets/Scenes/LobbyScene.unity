@@ -478,7 +478,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 767308384748300898, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
   m_PrefabInstance: {fileID: 1924305954}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1924305955}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5ffb533c2b713db419f50ef0bb57e54e, type: 3}
@@ -1498,7 +1498,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: ConnectPort
-      value: 1935
+      value: 7777
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: MaxConnections
@@ -1506,7 +1506,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: ServerListenPort
-      value: 1935
+      value: 7777
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300901, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: m_RootOrder
@@ -1552,16 +1552,63 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 767308384748300903, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 767308384748300903, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
-      propertyPath: NetworkConfig.ConnectionApproval
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
+--- !u!1 &1924305955 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 767308384748300899, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
+  m_PrefabInstance: {fileID: 1924305954}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1924305956 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
+  m_PrefabInstance: {fileID: 1924305954}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924305955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b84c2d8dfe509a34fb59e2b81f8e1319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1924305957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924305955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RunInBackground: 1
+  LogLevel: 1
+  NetworkConfig:
+    ProtocolVersion: 0
+    NetworkTransport: {fileID: 1924305956}
+    PlayerPrefab: {fileID: 5486438273854066249, guid: fcc5c5247e28c9c48840a11ab5620fc2, type: 3}
+    NetworkPrefabs:
+    - Override: 1
+      Prefab: {fileID: 5486438273854066249, guid: fcc5c5247e28c9c48840a11ab5620fc2, type: 3}
+      SourcePrefabToOverride: {fileID: 5486438273854066249, guid: fcc5c5247e28c9c48840a11ab5620fc2, type: 3}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 5486438273854066249, guid: fcc5c5247e28c9c48840a11ab5620fc2, type: 3}
+    TickRate: 30
+    ClientConnectionBufferTimeout: 10
+    ConnectionApproval: 0
+    ConnectionData: 
+    EnableTimeResync: 0
+    TimeResyncInterval: 30
+    EnsureNetworkVariableLengthSafety: 0
+    EnableSceneManagement: 1
+    ForceSamePrefabs: 1
+    RecycleNetworkIds: 1
+    NetworkIdRecycleDelay: 120
+    RpcHashSize: 0
+    LoadSceneTimeOut: 120
+    SpawnTimeout: 1
+    EnableNetworkLogs: 1
 --- !u!1 &2017653231
 GameObject:
   m_ObjectHideFlags: 0

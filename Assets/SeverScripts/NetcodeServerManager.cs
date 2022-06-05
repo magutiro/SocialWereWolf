@@ -15,6 +15,8 @@ public class NetcodeServerManager : MonoBehaviour
 
     private ConnectInfo connectInfo;
     public GameLift gameLift;
+
+    NetworkSpawnManager NetworkSpawnManager;
     public string PlayerName
     {
         get => _playerName;
@@ -23,11 +25,14 @@ public class NetcodeServerManager : MonoBehaviour
     {
         connectInfo = new ConnectInfo();
         Application.targetFrameRate = 60;
-        //NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
+    }
+    private void Start()
+    {
+       //NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
     }
     private void Update()
     {
-#if UNITY_SERVER
+#if SERVER
         if (!NetworkManager.Singleton.IsServer)
         {
             Debug.Log("StartServer");
@@ -36,6 +41,7 @@ public class NetcodeServerManager : MonoBehaviour
         
 #endif
     }
+
 #if CLIENT
     void OnGUI()
     {
@@ -79,6 +85,7 @@ public class NetcodeServerManager : MonoBehaviour
         }
 #endif
     }//クライアントの接続を承認する？
+    /*
     private void ApprovalCheck(byte[] connectionData, ulong clientId, NetworkManager.ConnectionApprovedDelegate callback)
     {
         Debug.Log("ApprovalCheck connectionData:" + System.Text.Encoding.ASCII.GetString(connectionData));
@@ -86,7 +93,7 @@ public class NetcodeServerManager : MonoBehaviour
         // ここにあなたの論理
         bool approve = true;
         //bool createPlayerObject = true;
-
+        callback(false, null, true, null, null);
 
 #if SERVER
             if (gameLift == null)
@@ -96,8 +103,8 @@ public class NetcodeServerManager : MonoBehaviour
             else
             {
                 //GameLiftにプレイヤーセッションを問い合わせる
-                approve = gameLift.ConnectPlayer((int)clientId, System.Text.Encoding.ASCII.GetString(connectionData));
-                if (!approve) { DisconnectPlayer(clientId); }
+                //approve = gameLift.ConnectPlayer((int)clientId, System.Text.Encoding.ASCII.GetString(connectionData));
+                //if (!approve) { DisconnectPlayer(clientId); }
             }
 #endif
 
@@ -113,8 +120,8 @@ public class NetcodeServerManager : MonoBehaviour
         // 承認がtrueの場合、接続が追加されます。それが間違っている場合。クライアントが切断さ
         // れます
         //callback(createPlayerObject, prefabHash, approve, positionToSpawnAt, rotationToSpawnWith);
-        callback(false, null, approve, null, null);
-    }
+        //callback(false, null, approve, null, null);
+    }*/
     private void StartServer()
     {
         NetworkManager.Singleton.OnServerStarted += OnStartServer;
@@ -143,11 +150,14 @@ public class NetcodeServerManager : MonoBehaviour
             }
         }
 
-        NetworkManager.Singleton.StartClient();
+        NetworkManager.Singleton.StartClient(); 
+        //var clientId = NetworkManager.Singleton.LocalClientId;
+
+       //SpawnCharacterServerRpc(clientId);
     }
     public void OnClickGameLiftConnect()
     {
-
+        Debug.Log("GMLIFT");
 #if CLIENT
         // try to connect to gamelift
         //ローカルサーバが無ければGameLiftに接続する
@@ -175,10 +185,12 @@ public class NetcodeServerManager : MonoBehaviour
                 // MLAPIでクライアントとして起動
                 var tasks = NetworkManager.Singleton.StartClient();
                 //this.clientManager.SetSocketTasks(tasks);
+
+                var clientId = NetworkManager.Singleton.LocalClientId;
+
+                //SpawnCharacterServerRpc(clientId);
             }
         }
-#elif !GAMELIFT
-        Debug.Log("GAMELIFTのプリプロセッサ定義がありません");
 #endif
     }
     // 接続設定をMLAPIのネットワーク設定に反映させます
@@ -223,24 +235,26 @@ public class NetcodeServerManager : MonoBehaviour
     }
     void OnStartServer()
     {
+        Debug.Log("Plyaerスポーン");
         var clientId = NetworkManager.Singleton.LocalClientId;
         // hostならば生成します
-        if (NetworkManager.Singleton.IsHost)
+        if (NetworkManager.Singleton.IsClient)
         {
-            SpawnCharacter(clientId);
+            //SpawnCharacterServerRpc(clientId);
         }
-    }
-    private void SpawnCharacter(ulong clientId)
+    }/*
+    void PlayerSpawn(ulong clientId)
     {
+        Debug.Log(clientId);
         var netMgr = NetworkManager.Singleton;
         var networkedPrefab = netMgr.NetworkConfig.PlayerPrefab;
         var randomPosition = new Vector3(UnityEngine.Random.Range(-7, 7), 5.0f, UnityEngine.Random.Range(-7, 7));
         var gmo = GameObject.Instantiate(networkedPrefab, randomPosition, Quaternion.identity);
         var netObject = gmo.GetComponent<NetworkObject>();
         // このNetworkオブジェクトをクライアントでもSpawnさせます
-        netObject.SpawnWithOwnership(clientId);
-    }
-
+        netObject.SpawnAsPlayerObject(clientId);
+        
+    }*/
     private void StatusLabels()
     {
         var mode = NetworkManager.Singleton.IsHost ? "Host" :

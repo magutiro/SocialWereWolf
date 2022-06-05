@@ -61,6 +61,7 @@ public class VivoxManager : MonoBehaviour
     private AccountId _accountId = null;
 
     private ILoginSession _loginSession = null;
+#if CLIENT
     void Start()
     {
         DontDestroyOnLoad(gameObject);
@@ -76,9 +77,10 @@ public class VivoxManager : MonoBehaviour
         }
         _ear.ObserveEveryValueChanged(_ => _.position)
             .Subscribe(_ => Set3DChannel());
-    }
 
-    void Update()
+}
+
+void Update()
     {
         if (!_ear && GameObject.Find("Player(Clone)"))
         {
@@ -316,4 +318,5 @@ public class VivoxManager : MonoBehaviour
         //Logout();
         //_client.Uninitialize();
     }
+#endif
 }
