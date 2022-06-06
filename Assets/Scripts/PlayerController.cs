@@ -22,6 +22,7 @@ public class Player
 public class PlayerController : NetworkBehaviour
 {
     bool ishit = false;
+    [SerializeField]
     private Vector3 _moveVector;
 
     Rigidbody2D rgd2D;
@@ -83,8 +84,6 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        rgd2D.velocity = Vector3.zero;
-        _moveVector = Vector3.zero;
         if (!ishit && IsOwner)
         {
             // 横矢印キーの押されている状況を取得
@@ -109,12 +108,8 @@ public class PlayerController : NetworkBehaviour
             // サーバー側は移動処理を実行
             MovePlayer();
         }
-        /*
-        if (!photonView.IsMine)
-        {
-            FlipChange(rgd2D.velocity.x);
-        }
-        */
+        _moveVector = Vector3.zero;
+        rgd2D.velocity = Vector3.zero;
     }
     /// <summary>
     /// [ServerRpc]を使うことで、サーバー側で実行されるメソッドになる
