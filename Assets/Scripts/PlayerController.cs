@@ -84,6 +84,7 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        rgd2D.velocity = Vector3.zero;
         if (!ishit && IsOwner)
         {
             // 横矢印キーの押されている状況を取得
@@ -96,6 +97,7 @@ public class PlayerController : NetworkBehaviour
             {
                 rgd2D.velocity = Vector3.zero;
                 _moveVector = Vector3.zero;
+                StopMoveServerRpc();
             }
             else
             {
@@ -108,8 +110,6 @@ public class PlayerController : NetworkBehaviour
             // サーバー側は移動処理を実行
             MovePlayer();
         }
-        _moveVector = Vector3.zero;
-        rgd2D.velocity = Vector3.zero;
     }
     /// <summary>
     /// [ServerRpc]を使うことで、サーバー側で実行されるメソッドになる
@@ -119,6 +119,13 @@ public class PlayerController : NetworkBehaviour
     {
         _moveVector = Axis;
         FlipChange(_moveVector.x); 
+    }
+    [ServerRpc]
+    void StopMoveServerRpc()
+    {
+        _moveVector = Vector3.zero;
+        rgd2D.velocity = Vector3.zero;
+
     }
     public void MovePlayer()
     {
