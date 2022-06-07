@@ -28,7 +28,7 @@ public class NetcodeServerManager : MonoBehaviour
     }
     private void Start()
     {
-       //NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
+        NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
     }
     private void Update()
     {
@@ -60,14 +60,15 @@ public class NetcodeServerManager : MonoBehaviour
 #endif
     private void StartButtons()
     {
+
+#if UNITY_SERVER
+#elif CLIENT     
         if (GUILayout.Button("Server"))
         {
             //サーバーとして起動
             StartServer();
         }
 
-#if UNITY_SERVER
-#elif CLIENT
         if (GUILayout.Button("Host"))
         {
             StartHost();
@@ -85,7 +86,7 @@ public class NetcodeServerManager : MonoBehaviour
         }
 #endif
     }//クライアントの接続を承認する？
-    /*
+
     private void ApprovalCheck(byte[] connectionData, ulong clientId, NetworkManager.ConnectionApprovedDelegate callback)
     {
         Debug.Log("ApprovalCheck connectionData:" + System.Text.Encoding.ASCII.GetString(connectionData));
@@ -103,8 +104,8 @@ public class NetcodeServerManager : MonoBehaviour
             else
             {
                 //GameLiftにプレイヤーセッションを問い合わせる
-                //approve = gameLift.ConnectPlayer((int)clientId, System.Text.Encoding.ASCII.GetString(connectionData));
-                //if (!approve) { DisconnectPlayer(clientId); }
+                approve = gameLift.ConnectPlayer((int)clientId, System.Text.Encoding.ASCII.GetString(connectionData));
+                if (!approve) { DisconnectPlayer(clientId); }
             }
 #endif
 
@@ -121,7 +122,7 @@ public class NetcodeServerManager : MonoBehaviour
         // れます
         //callback(createPlayerObject, prefabHash, approve, positionToSpawnAt, rotationToSpawnWith);
         //callback(false, null, approve, null, null);
-    }*/
+    }
     private void StartServer()
     {
         NetworkManager.Singleton.OnServerStarted += OnStartServer;
@@ -185,8 +186,6 @@ public class NetcodeServerManager : MonoBehaviour
                 // MLAPIでクライアントとして起動
                 var tasks = NetworkManager.Singleton.StartClient();
                 //this.clientManager.SetSocketTasks(tasks);
-
-                var clientId = NetworkManager.Singleton.LocalClientId;
 
                 //SpawnCharacterServerRpc(clientId);
             }

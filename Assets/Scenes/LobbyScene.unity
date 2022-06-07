@@ -1498,7 +1498,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: ConnectPort
-      value: 7777
+      value: 1935
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: MaxConnections
@@ -1506,7 +1506,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: ServerListenPort
-      value: 7777
+      value: 1935
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300901, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: m_RootOrder

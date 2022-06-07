@@ -1,4 +1,4 @@
-﻿// Copyright 2018 Amazon
+﻿ // Copyright 2018 Amazon
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -403,9 +403,12 @@ public class GameLiftClient
     {
         var config = new AmazonGameLiftConfig();
         config.RegionEndpoint = Amazon.RegionEndpoint.APNortheast1;
+#if GAMELIFT
 
-        //config.ServiceURL = "http://localhost:1935";
-        
+#else
+        config.ServiceURL = "http://localhost:1935";
+#endif
+
 
         Debug.Log("GL372");
         try
@@ -471,6 +474,7 @@ public class GameLiftClient
         {
             try
             {
+#if GAMELIFT
                 var dareq = new Amazon.GameLift.Model.DescribeAliasRequest();
                 dareq.AliasId = aliasId;
                 Amazon.GameLift.Model.DescribeAliasResponse dares = aglc.DescribeAlias(dareq);
@@ -478,6 +482,7 @@ public class GameLiftClient
                 Debug.Log((int)dares.HttpStatusCode + " ALIAS NAME: " + alias.Name + " (" + aliasId + ")");
                 if (alias.RoutingStrategy.Type == Amazon.GameLift.RoutingStrategyType.TERMINAL)
                     Debug.Log("             (TERMINAL ALIAS)");
+#endif
             }
             catch (Exception e)
             {
@@ -525,8 +530,10 @@ public class GameLiftClient
         {
             var cgsreq = new Amazon.GameLift.Model.CreateGameSessionRequest();
             cgsreq.AliasId = aliasId;
+            //cgsreq.FleetId = "fleet-123";
             cgsreq.CreatorId = playerId;
             cgsreq.MaximumPlayerSessionCount = 9;
+            cgsreq.Name = "RoomNameTest";
             Amazon.GameLift.Model.CreateGameSessionResponse cgsres = aglc.CreateGameSession(cgsreq);
             string gsid = cgsres.GameSession != null ? cgsres.GameSession.GameSessionId : "N/A";
             Debug.Log((int)cgsres.HttpStatusCode + " GAME SESSION CREATED: " + gsid);
@@ -575,6 +582,7 @@ public class GameLiftClient
         {
             try
             {
+#if GAMELIFT
                 for (int retry = 0; retry < 4; retry++)
                 {
                     Debug.Log("SearchGameSessions retry==" + retry);
@@ -594,12 +602,11 @@ public class GameLiftClient
                             aglc.Dispose();
                             return;
                         }
-
-                        // player session creation failed (probably beaten to the session by another player)
-                        retry = 0; // start over
+                    // player session creation failed (probably beaten to the session by another player)
+                    retry = 0; // start over
                     }
                 }
-
+#endif
                 // no game session, we should create one
                 for (int retry = 0; retry < 4; retry++)
                 {
