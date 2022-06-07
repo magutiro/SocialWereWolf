@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 767308384748300901}
   - component: {fileID: 767308384748300898}
-  - component: {fileID: 767308384748300903}
   - component: {fileID: 767308384748300900}
   m_Layer: 0
   m_Name: NetworkManager
@@ -45,40 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ffb533c2b713db419f50ef0bb57e54e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &767308384748300903
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 767308384748300899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RunInBackground: 1
-  LogLevel: 1
-  NetworkConfig:
-    ProtocolVersion: 0
-    NetworkTransport: {fileID: 767308384748300900}
-    PlayerPrefab: {fileID: 5486438273854066249, guid: fcc5c5247e28c9c48840a11ab5620fc2, type: 3}
-    NetworkPrefabs: []
-    TickRate: 30
-    ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 0
-    ConnectionData: 
-    EnableTimeResync: 0
-    TimeResyncInterval: 30
-    EnsureNetworkVariableLengthSafety: 0
-    EnableSceneManagement: 1
-    ForceSamePrefabs: 1
-    RecycleNetworkIds: 1
-    NetworkIdRecycleDelay: 120
-    RpcHashSize: 0
-    LoadSceneTimeOut: 120
-    SpawnTimeout: 1
-    EnableNetworkLogs: 1
+  gameLift: {fileID: 0}
 --- !u!114 &767308384748300900
 MonoBehaviour:
   m_ObjectHideFlags: 0

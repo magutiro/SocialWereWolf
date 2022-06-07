@@ -48,8 +48,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     private Vector2 _moveInput;
 
-    [SerializeField]
-    private NetworkVariable<Unity.Collections.FixedString32Bytes> _name = new NetworkVariable<Unity.Collections.FixedString32Bytes>();
+    //[SerializeField]
+    //private NetworkVariable<Unity.Collections.FixedString32Bytes> _name = new NetworkVariable<Unity.Collections.FixedString32Bytes>();
     // Start is called before the first frame update
     void Start()
     {
@@ -64,7 +64,7 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = true)]
     void setNameServerRpc(string name)
     {
-        _name.Value = name;
+        //_name.Value = name;
     }
     private void Initialization()
     {
@@ -80,7 +80,7 @@ public class PlayerController : NetworkBehaviour
         _vivoxManager = parent.GetComponent<VivoxManager>();
 
         var otherNameText = transform.Find("Name").gameObject;
-        otherNameText.GetComponent<TextMesh>().text = _name.Value.ToString();
+        //otherNameText.GetComponent<TextMesh>().text = _name.Value.ToString();
 
         if (!IsOwner)
         {
@@ -122,6 +122,7 @@ public class PlayerController : NetworkBehaviour
     }
     void Awake()
     {
+#if CLIENT
         if (!_vivoxManager)
         {
             parent = GameObject.Find("PlayerManager");
@@ -132,6 +133,7 @@ public class PlayerController : NetworkBehaviour
             _vivoxManager.JoinChannel("test1", VivoxUnity.ChannelType.Positional);
             Debug.Log("joinVC");
         }
+#endif
     }
 
     // Update is called once per frame
@@ -160,7 +162,7 @@ public class PlayerController : NetworkBehaviour
                 //サーバー側に入力Vectorを送信
                 _moveVector = inputMoveAxis;
                 SetMoveInputServerRpc(inputMoveAxis);
-                MovePlayerServerRpc();
+                //MovePlayerServerRpc();
             }
         }
         if (IsServer)
@@ -171,7 +173,7 @@ public class PlayerController : NetworkBehaviour
             }
             else
             {
-                //MovePlayer();
+                MovePlayer();
             }
         }
     }
