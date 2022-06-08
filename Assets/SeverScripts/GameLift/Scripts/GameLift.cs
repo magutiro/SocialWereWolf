@@ -94,6 +94,10 @@ public class GameLift : MonoBehaviour
 #endif
 #if CLIENT
         client.Start();
+        if(client == null)
+        {
+            Debug.Log("MISS CLIENT");
+        }
 #endif
     }
 

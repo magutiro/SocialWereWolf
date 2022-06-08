@@ -18,7 +18,10 @@ public class UIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(NetworkManager.Singleton.IsServer && NetworkManager.Singleton.ConnectedClientsList.Count == 9)
+        {
+            ServerScene();
+        }
     }
     public void OnKillButton()
     {
@@ -35,7 +38,15 @@ public class UIController : MonoBehaviour
     [ServerRpc]
     void SceneServerRpc()
     {
-        NetworkManager.Singleton.SceneManager.LoadScene("InGameScene", LoadSceneMode.Single);
+        ServerScene();
+    }
+    private void ServerScene()
+    {
+        if (NetworkManager.Singleton.IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene("InGameScene", LoadSceneMode.Single);
+
+        }
     }
 
 

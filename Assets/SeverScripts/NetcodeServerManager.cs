@@ -8,8 +8,8 @@ using UnityEngine.Networking.Match;
 
 public class NetcodeServerManager : MonoBehaviour
 {
-    private string _textIpAddress = "127.0.0.1";
-    private string _port = "7777";
+    private string _textIpAddress = "54.168.7.191";//127.0.0.1
+    private string _port = "1935";
     private string _playerName = "プレイヤー名";
 
 
@@ -17,6 +17,7 @@ public class NetcodeServerManager : MonoBehaviour
     public GameLift gameLift;
 
     NetworkSpawnManager NetworkSpawnManager;
+    string inURL = "https://84k5pqnqqf.execute-api.ap-northeast-1.amazonaws.com/default/test";
     public string PlayerName
     {
         get => _playerName;
@@ -161,6 +162,8 @@ public class NetcodeServerManager : MonoBehaviour
         Debug.Log("GMLIFT");
 #if CLIENT
         // try to connect to gamelift
+        StartCoroutine(CallGetWebRequest(inURL));
+        return;
         //ローカルサーバが無ければGameLiftに接続する
         if (gameLift.client != null)
         {
@@ -190,7 +193,35 @@ public class NetcodeServerManager : MonoBehaviour
                 //SpawnCharacterServerRpc(clientId);
             }
         }
+        else
+        {
+            
+
+        }
 #endif
+    }
+    private IEnumerator CallGetWebRequest(string inURL)
+    {
+        //ウェブリクエストを生成
+        var request = UnityEngine.Networking.UnityWebRequest.Get(inURL);
+        //通信待ち
+        yield return request.SendWebRequest();
+        Debug.Log(request); 
+        string text;
+        yield return text = request.downloadHandler.text; 
+        //Lambda req;
+        //yield return req = JsonUtility.FromJson<Lambda>(text);
+        Debug.Log(text.ToString());
+        //yield return text = req.body.Replace("\\", "");
+        body body;
+        yield return body = JsonUtility.FromJson<body>(text);
+
+        this.connectInfo.ipAddr = body.IpAddress;
+        this.connectInfo.port = body.Port;
+        this.connectInfo.playerName = UserLoginData.userName;
+        ApplyConnectInfoToNetworkManager();
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(body.PlayerSessionId);
+        var tasks = NetworkManager.Singleton.StartClient();
     }
     // 接続設定をMLAPIのネットワーク設定に反映させます
     private void ApplyConnectInfoToNetworkManager()
@@ -241,19 +272,7 @@ public class NetcodeServerManager : MonoBehaviour
         {
             //SpawnCharacterServerRpc(clientId);
         }
-    }/*
-    void PlayerSpawn(ulong clientId)
-    {
-        Debug.Log(clientId);
-        var netMgr = NetworkManager.Singleton;
-        var networkedPrefab = netMgr.NetworkConfig.PlayerPrefab;
-        var randomPosition = new Vector3(UnityEngine.Random.Range(-7, 7), 5.0f, UnityEngine.Random.Range(-7, 7));
-        var gmo = GameObject.Instantiate(networkedPrefab, randomPosition, Quaternion.identity);
-        var netObject = gmo.GetComponent<NetworkObject>();
-        // このNetworkオブジェクトをクライアントでもSpawnさせます
-        netObject.SpawnAsPlayerObject(clientId);
-        
-    }*/
+    }
     private void StatusLabels()
     {
         var mode = NetworkManager.Singleton.IsHost ? "Host" :
