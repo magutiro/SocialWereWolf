@@ -60,8 +60,7 @@ public class GameController : NetworkBehaviour
     public IObservable<DictionaryAddEvent<int, string>> AddObservable => _playerId.ObserveAdd();
 
     public List<int> _jobConstitution = new List<int>();
-
-    ServerMessageSerializable _serverSerializable = new ServerMessageSerializable();
+    //オブジェクトがスポーンしたとき
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
@@ -71,13 +70,16 @@ public class GameController : NetworkBehaviour
     }
     // サーバー側で実行される
     [Unity.Netcode.ServerRpc(RequireOwnership = true)]
+    //サーバーが持つプレイヤーIDをクライアントに送信
     private void SetPlayerCountServerRpc()
     {
-        Dictionary<int, string> vueDictionary = _playerId.ToDictionary(pair => pair.Key, pair => pair.Value);
+        Dictionary<int, string> vueDictionary = ValueDictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
+
         foreach (var dir in vueDictionary)
         {
             SetPlayerDictionaryClientRpc(dir.Key, dir.Value);
         }
+        //プレイヤーの人数カウントを追加
         _playerCount.Value++;
     }
 
@@ -97,13 +99,23 @@ public class GameController : NetworkBehaviour
         _gameState
             .DistinctUntilChanged()
             .Subscribe(_ => Init());
-        _playerCount.OnValueChanged += OnAddPlayerCount();
+        //自身のプレイヤーカウントが増えたときにOnAddPlayerCountを呼び出す
+        if (IsClient)
+        {
+            _playerCount.OnValueChanged += OnAddPlayerCount();
+        }
     }
-
+    //プレイヤーカウントが増えたあとに自身のIDと名前を登録する
     private NetworkVariable<int>.OnValueChangedDelegate OnAddPlayerCount()
     {
-        _playerId.Add(_playerCount.Value, UserLoginData.userName);
+        _playerId.Add(_playerCount.Value, UserLoginData.userName.Value);
+        SetPlayerIDServerRpc(_playerCount.Value, UserLoginData.userName.Value);
         return null;
+    }
+    [ServerRpc]
+    private void SetPlayerIDServerRpc(int key, string value)
+    {
+        _playerId.Add(key, value);
     }
     // Update is called once per frame
     void Update()

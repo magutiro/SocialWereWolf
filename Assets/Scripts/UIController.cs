@@ -27,7 +27,7 @@ public class UIController : MonoBehaviour
     {
         if (_targetPlayer)
         {
-            Debug.Log(_targetPlayer.Killed(UserLoginData.userName));
+            Debug.Log(_targetPlayer.Killed(UserLoginData.userName.Value));
         }
     }
     public void OnStartButton()

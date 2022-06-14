@@ -8,7 +8,8 @@ using UnityEngine;
 using VivoxUnity;
 using UnityEngine.SceneManagement;
 using UniRx;
-public class VivoxManager : MonoBehaviour
+using Unity.Netcode;
+public class VivoxManager : NetworkBehaviour
 {
     private Client _client = null;
     /// <summary>
@@ -89,9 +90,9 @@ void Update()
     }
     private void Awake()
     {
-        if(_accountId is null)
+        if(_accountId is null && IsClient)
         {
-            CreateAccount("adcde" + UserLoginData.userName, UserLoginData.userName);
+            CreateAccount("" + UserLoginData.userName.Value, UserLoginData.userName.Value);
             Debug.Log("クライアント作成");
             _client = new Client();
             _client.Initialize();
@@ -126,7 +127,7 @@ void Update()
             catch (Exception e)
             {
                 _loginSession.PropertyChanged -= OnLoginStateChanged;
-                Debug.Log("TODO: ログインに失敗したときの処理をここに書く");
+                Debug.Log("TODO: ログインに失敗したときの処理をここに書く" + e.Message);
                 return;
             }
         });
@@ -206,7 +207,7 @@ void Update()
                 catch (Exception e)
                 {
                     channelSession.Parent.DeleteChannelSession(channelSession.Channel);
-                    Debug.Log("チャンネル参加に失敗");
+                    Debug.Log("チャンネル参加に失敗"+e.Message) ;
                     return;
                 }
             });

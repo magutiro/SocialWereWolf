@@ -33,7 +33,7 @@ public class TitleManager : MonoBehaviour
     public void OnClickLoginButton()
     {
         // 入力したユーザー名の取得 
-        UserLoginData.userName = IpfUserName.text;
+        UserLoginData.userName.Value = IpfUserName.text;
 
         // プレイ画面へ遷移
         //SceneManager.LoadScene("InGameScene");

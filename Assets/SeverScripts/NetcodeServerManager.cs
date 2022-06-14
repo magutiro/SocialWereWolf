@@ -92,9 +92,8 @@ public class NetcodeServerManager : MonoBehaviour
     {
         Debug.Log("ApprovalCheck connectionData:" + System.Text.Encoding.ASCII.GetString(connectionData));
         //Your logic here
-        // ここにあなたの論理
-        bool approve = true;
         //bool createPlayerObject = true;
+        bool approve;
         callback(false, null, true, null, null);
 
 #if SERVER
@@ -163,41 +162,7 @@ public class NetcodeServerManager : MonoBehaviour
 #if CLIENT
         // try to connect to gamelift
         StartCoroutine(CallGetWebRequest(inURL));
-        return;
-        //ローカルサーバが無ければGameLiftに接続する
-        if (gameLift.client != null)
-        {
-            string ip = null;
-            int port = -1;
-            string auth = null;
-            gameLift.GetConnectionInfo(ref ip, ref port, ref auth); // sets GameliftStatus
-
-            if (gameLift.gameliftStatus)// TryConnect(ip, port, auth); //GameLiftからip、ポート、認証をゲットしたので接続
-            {
-                Debug.Log("GameLiftからIP取得！ ip:" + ip + " port:" + port + " auth:" + auth);
-                //this.connectInfo.useRelay = false;
-                this.connectInfo.ipAddr = ip;
-                this.connectInfo.port = port;
-                this.connectInfo.playerName = UserLoginData.userName;
-
-                ApplyConnectInfoToNetworkManager();
-                Debug.Log(ip);
-                NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(auth); //セッションＩＤをカスタムデータとして送信
-
-                // ClientManagerでMLAPIのコールバック等を設定
-                //this.clientManager.Setup();
-                // MLAPIでクライアントとして起動
-                var tasks = NetworkManager.Singleton.StartClient();
-                //this.clientManager.SetSocketTasks(tasks);
-
-                //SpawnCharacterServerRpc(clientId);
-            }
-        }
-        else
-        {
-            
-
-        }
+        
 #endif
     }
     private IEnumerator CallGetWebRequest(string inURL)
@@ -218,7 +183,7 @@ public class NetcodeServerManager : MonoBehaviour
 
         this.connectInfo.ipAddr = body.IpAddress;
         this.connectInfo.port = body.Port;
-        this.connectInfo.playerName = UserLoginData.userName;
+        this.connectInfo.playerName = UserLoginData.userName.Value;
         ApplyConnectInfoToNetworkManager();
         NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(body.PlayerSessionId);
         var tasks = NetworkManager.Singleton.StartClient();
