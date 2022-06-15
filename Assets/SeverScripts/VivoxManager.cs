@@ -79,9 +79,9 @@ public class VivoxManager : NetworkBehaviour
         _ear.ObserveEveryValueChanged(_ => _.position)
             .Subscribe(_ => Set3DChannel());
 
-}
+    }
 
-void Update()
+    void Update()
     {
         if (!_ear && GameObject.Find("Player(Clone)"))
         {
@@ -90,9 +90,9 @@ void Update()
     }
     private void Awake()
     {
-        if(_accountId is null && IsClient)
+        if(_accountId is null)
         {
-            CreateAccount("" + UserLoginData.userName.Value, UserLoginData.userName.Value);
+            CreateAccount("abc" + UserLoginData.userName.Value, UserLoginData.userName.Value);
             Debug.Log("クライアント作成");
             _client = new Client();
             _client.Initialize();

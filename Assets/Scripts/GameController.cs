@@ -43,6 +43,8 @@ public class GameController : NetworkBehaviour
     private const float _nightTime = 60;
     [SerializeField]
     private const float _eveningTime = 150;
+    [SerializeField]
+    private const int MAX_PLAYER = 9;
 
     public GameStateReactiveProperty _gameState = new GameStateReactiveProperty(GameState.Daytime);
 
@@ -82,6 +84,10 @@ public class GameController : NetworkBehaviour
         //プレイヤーの人数カウントを追加
         _playerCount.Value++;
     }
+    void SetPlayerCount()
+    {
+
+    }
 
     [Unity.Netcode.ClientRpc]
     private void SetPlayerDictionaryClientRpc(int key, string value)
@@ -108,7 +114,10 @@ public class GameController : NetworkBehaviour
     //プレイヤーカウントが増えたあとに自身のIDと名前を登録する
     private NetworkVariable<int>.OnValueChangedDelegate OnAddPlayerCount()
     {
-        _playerId.Add(_playerCount.Value, UserLoginData.userName.Value);
+        if (IsClient)
+        {
+            _playerId.Add(_playerCount.Value, UserLoginData.userName.Value);
+        }
         SetPlayerIDServerRpc(_playerCount.Value, UserLoginData.userName.Value);
         return null;
     }
