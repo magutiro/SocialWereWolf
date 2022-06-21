@@ -3,30 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 public class PlayerManager : MonoBehaviour { 
-    public List<string> _playerNames;
+
+    public GameController gameController;
+    public List<GameObject> playerList;
     // Start is called before the first frame update
     void Start()
     {
 
+        SceneManager.sceneLoaded += SceneUnloaded;
     }
-    private void Awake()
+    void Awake()
     {
+
     }
     void Update()
     {
-        
-    }
-    private void OnApplicationQuit()
-    {
-    }
-    private void EndWebsocket()
-    {
-    }
-    public void OnClickExitButton()
-    {
-        // タイトルシーンに戻る
-        SceneManager.LoadScene("TitleScene");
-    }
 
+    }
+    void SceneUnloaded(Scene scene, LoadSceneMode mode)
+    {
+        gameController = GameObject.Find("GameController").GetComponent<GameController>();
+
+    }
+    [ServerRpc]
+    public void SpawnObjectServerRpc(GameObject gameObject)
+    {
+        Add(gameObject);
+    }
+    public void Add(GameObject playerController)
+    {
+        playerList.Add(playerController);
+    }
 }

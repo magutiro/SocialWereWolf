@@ -12,6 +12,13 @@ public class Player
     public float _playerSpeed;
     public int _playerAttack;
     public int _playerHP;
+    public int _jobSkillID;
+    public int _baseSkillID;
+    public enum PlayerState
+    {
+        Alive,
+        Dead
+    }
 
     public Player(float speed, int attck, int hp)
     {
@@ -32,7 +39,7 @@ public class PlayerController : NetworkBehaviour
     InputAction move;
     FixedJoystick joystick;
 
-    Player _player;
+    public Player _player;
     GameObject parent;
 
     public VivoxManager _vivoxManager;
@@ -48,7 +55,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     private Vector2 _moveInput;
 
-    //[SerializeField]
+    [SerializeField]
     private NetworkVariable<NetworkString> _name = new NetworkVariable<NetworkString>();
     // Start is called before the first frame update
     void Start()
@@ -58,8 +65,10 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             setNameServerRpc(UserLoginData.userName.Value);
+            Debug.Log(UserLoginData.userName.Value);
         }
         Initialization();
+        parent.GetComponent<PlayerManager>().SpawnObjectServerRpc(this.gameObject);
     }
     [ServerRpc(RequireOwnership = true)]
     void setNameServerRpc(string name)
@@ -86,11 +95,6 @@ public class PlayerController : NetworkBehaviour
         {
             transform.GetChild(0).gameObject.SetActive(false);
         }
-
-        gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        gameController.AddObservable
-            .Where(x => x.Value == UserLoginData.userName.Value)
-            .Subscribe(x => _playerId.Value = x.Key);
         Debug.Log("‰Šú‰»");
     }
     void SceneUnloaded(Scene scene, LoadSceneMode mode)
@@ -100,6 +104,9 @@ public class PlayerController : NetworkBehaviour
         gameController._gameState
             .DistinctUntilChanged()
             .Subscribe(_ => StateInit());
+        gameController.AddObservable
+            .Where(x => x.Value == UserLoginData.userName.Value)
+            .Subscribe(x => _playerId.Value = x.Key);
         PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
         playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
     }

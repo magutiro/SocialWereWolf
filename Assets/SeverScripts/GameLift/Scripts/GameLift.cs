@@ -37,7 +37,7 @@ public class GameLift : MonoBehaviour
 #if CLIENT
     public GameLiftClient client;
 #endif
-
+    
     public bool MyRemoteCertificateValidationCallback(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
     {
         bool isOk = true;
@@ -90,7 +90,7 @@ public class GameLift : MonoBehaviour
     {
         Debug.Log(":) GAMELIFT START");
 #if SERVER
-        //server.Start();
+        server.Start();
 #endif
 #if CLIENT
         client.Start();

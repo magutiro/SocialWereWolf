@@ -8,8 +8,12 @@ using UnityEngine.Networking.Match;
 
 public class NetcodeServerManager : MonoBehaviour
 {
-    private string _textIpAddress = "54.168.7.191";//127.0.0.1
-    private string _port = "1935";
+    //private string _textIpAddress = "54.168.7.191";
+    //private string _port = "1935";
+
+    private string _textIpAddress = "127.0.0.1";//127.0.0.1
+    private string _port = "7777";
+
     private string _playerName = "ÉvÉåÉCÉÑÅ[ñº";
 
 
@@ -30,17 +34,18 @@ public class NetcodeServerManager : MonoBehaviour
     private void Start()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
-    }
-    private void Update()
-    {
+
 #if SERVER
         if (!NetworkManager.Singleton.IsServer)
         {
             Debug.Log("StartServer");
             StartServer();
         }
-        
+
 #endif
+    }
+    private void Update()
+    {
     }
 
 #if CLIENT

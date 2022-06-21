@@ -18,7 +18,7 @@ public class UIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(NetworkManager.Singleton.IsServer && NetworkManager.Singleton.ConnectedClientsList.Count == 9)
+        if(SceneManager.GetActiveScene().name =="LobbyScene" && NetworkManager.Singleton.IsServer && NetworkManager.Singleton.ConnectedClientsList.Count == 2)
         {
             ServerScene();
         }
