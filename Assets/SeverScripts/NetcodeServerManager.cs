@@ -8,11 +8,11 @@ using UnityEngine.Networking.Match;
 
 public class NetcodeServerManager : MonoBehaviour
 {
-    //private string _textIpAddress = "54.168.7.191";
-    //private string _port = "1935";
+    private string _textIpAddress = "54.168.7.191";
+    private string _port = "1935";
 
-    private string _textIpAddress = "127.0.0.1";//127.0.0.1
-    private string _port = "7777";
+    //private string _textIpAddress = "127.0.0.1";
+    //private string _port = "7777";
 
     private string _playerName = "プレイヤー名";
 
@@ -230,7 +230,8 @@ public class NetcodeServerManager : MonoBehaviour
     private void DisconnectPlayer(ulong clientId)
     {
 #if SERVER
-            gameLift.DisconnectPlayer((int)clientId);   //プレイヤーセッションを解放
+        gameLift.DisconnectPlayer((int)clientId);   //プレイヤーセッションを解放
+        Debug.Log("プレイヤー開放");
 #endif
     }
     void OnStartServer()

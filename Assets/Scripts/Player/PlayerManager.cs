@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
-public class PlayerManager : MonoBehaviour { 
+public class PlayerManager : NetworkBehaviour { 
 
     public GameController gameController;
     public List<GameObject> playerList;
@@ -25,6 +25,7 @@ public class PlayerManager : MonoBehaviour {
     void SceneUnloaded(Scene scene, LoadSceneMode mode)
     {
         gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        gameController.pm = this;
 
     }
     [ServerRpc]

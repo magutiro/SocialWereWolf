@@ -349,7 +349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _muteText: {fileID: 596531173}
-  _vivox: {fileID: 1136093250}
+  _vivox: {fileID: 0}
 --- !u!1 &397704384
 GameObject:
   m_ObjectHideFlags: 0
@@ -976,8 +976,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1136093249}
   - component: {fileID: 1136093248}
-  - component: {fileID: 1136093250}
-  - component: {fileID: 1136093251}
   m_Layer: 0
   m_Name: PlayerManager
   m_TagString: Untagged
@@ -1013,43 +1011,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1136093250
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136093247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ae47b9d6520a5d4b8648bd5847accfb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _domain: mt1s.vivox.com
-  _issuer: noneng7279-wo54-dev
-  _server: https://mt1s.www.vivox.com/api2
-  _tokenKey: zinc188
-  _ear: {fileID: 0}
-  _mouth: {fileID: 0}
-  audibleDistance: 5
-  conversationalDistance: 1
-  audioFadeIntensityByDistanceaudio: 1.5
---- !u!114 &1136093251
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136093247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2845938154
-  AlwaysReplicateAsRoot: 0
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!1 &1447093665
 GameObject:
   m_ObjectHideFlags: 0
@@ -1518,7 +1479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: ConnectPort
-      value: 7777
+      value: 1935
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: MaxConnections
@@ -1526,7 +1487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300900, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: ServerListenPort
-      value: 7777
+      value: 1935
       objectReference: {fileID: 0}
     - target: {fileID: 767308384748300901, guid: d7b1dc48c4adbed41bd7b150086030d3, type: 3}
       propertyPath: m_RootOrder
@@ -1608,7 +1569,12 @@ MonoBehaviour:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1924305956}
     PlayerPrefab: {fileID: 5486438273854066249, guid: fcc5c5247e28c9c48840a11ab5620fc2, type: 3}
-    NetworkPrefabs: []
+    NetworkPrefabs:
+    - Override: 0
+      Prefab: {fileID: 1136093247}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -1624,6 +1590,75 @@ MonoBehaviour:
     LoadSceneTimeOut: 120
     SpawnTimeout: 1
     EnableNetworkLogs: 1
+--- !u!1 &1951613187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1951613190}
+  - component: {fileID: 1951613189}
+  - component: {fileID: 1951613188}
+  m_Layer: 0
+  m_Name: Vivox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1951613188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951613187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 884013054
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &1951613189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951613187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ae47b9d6520a5d4b8648bd5847accfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _domain: mt1s.vivox.com
+  _issuer: noneng7279-wo54-dev
+  _server: https://mt1s.www.vivox.com/api2
+  _tokenKey: zinc188
+  _ear: {fileID: 0}
+  _mouth: {fileID: 0}
+  audibleDistance: 5
+  conversationalDistance: 1
+  audioFadeIntensityByDistanceaudio: 1.5
+--- !u!4 &1951613190
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951613187}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.5, y: 30.199999, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2017653231
 GameObject:
   m_ObjectHideFlags: 0

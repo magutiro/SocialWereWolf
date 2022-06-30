@@ -36,6 +36,8 @@ public class GameController : NetworkBehaviour
     [SerializeField]
     private GameObject _dayPanel;
     [SerializeField]
+    private GameObject _votePanel;
+    [SerializeField]
     private const float _morningTime = 90;
     [SerializeField]
     private const float _dayTime = 300;
@@ -51,6 +53,7 @@ public class GameController : NetworkBehaviour
     private NetworkVariable<int> _playerCount = new NetworkVariable<int>(0);
 
     private NetworkVariable<float> _gameTime = new NetworkVariable<float>(300);
+    private NetworkVariable<int> _raidPlayerID = new NetworkVariable<int>();
 
     //変更を監視する値
     private ReactiveDictionary<int, string> _playerId = new ReactiveDictionary<int, string>();
@@ -62,6 +65,12 @@ public class GameController : NetworkBehaviour
     public IObservable<DictionaryAddEvent<int, string>> AddObservable => _playerId.ObserveAdd();
 
     public List<int> _jobConstitution = new List<int>();
+
+    public PlayerManager pm;
+
+    public PlayerVoteController _playerVoteController;
+
+    public GameObject NightCamera;
     //オブジェクトがスポーンしたとき
     public override void OnNetworkSpawn()
     {
@@ -131,7 +140,8 @@ public class GameController : NetworkBehaviour
     {
         if (IsServer)
         {
-            GameStateMethod();// 残り時間を計算する
+            GameStateMethod();
+            // 残り時間を計算する
             _gameTime.Value -= Time.deltaTime;
             // ゼロ秒以下にならないようにする
             if (_gameTime.Value <= 0.0f)
@@ -140,7 +150,8 @@ public class GameController : NetworkBehaviour
             }
         }
         //xx：xx
-        _timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
+
+        //_timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
 
     }
     void Init()
@@ -167,8 +178,13 @@ public class GameController : NetworkBehaviour
         {
             _gameTime.Value = _morningTime;
         }
+        Debug.Log(ValueDictionary[_raidPlayerID.Value] + "を襲撃しました。");
+        pm.playerList[_raidPlayerID.Value].GetComponent<PlayerController>().Killed(UserLoginData.userName.Value);
         _meetingPanel.SetActive(true);
         _nightPanel.SetActive(false);
+        _playerVoteController.ResetVoteImages();
+        NightCamera.SetActive(false);
+        pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(true);
     }
 
     void InitDaytime()
@@ -188,6 +204,9 @@ public class GameController : NetworkBehaviour
         }
         _dayPanel.SetActive(false);
         _meetingPanel.SetActive(true);
+        _votePanel.SetActive(true);
+        _playerVoteController.ResetVoteImages();
+        pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(false);
     }
     void InitNight()
     {
@@ -195,8 +214,10 @@ public class GameController : NetworkBehaviour
         {
             _gameTime.Value = _nightTime;
         }
+        _votePanel.SetActive(false);
         _meetingPanel.SetActive(false);
         _nightPanel.SetActive(true);
+        NightCamera.SetActive(true);
     }
     void GameStateMethod()
     {
@@ -246,6 +267,10 @@ public class GameController : NetworkBehaviour
         {
             _gameState.Value = GameState.Morning;
         }
+    }
+    public void RaidPlayer(int id)
+    {
+        _raidPlayerID.Value = id;
     }
 
 }

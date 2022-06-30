@@ -14,6 +14,7 @@ public class Player
     public int _playerHP;
     public int _jobSkillID;
     public int _baseSkillID;
+    public PlayerState playerState = PlayerState.Alive;
     public enum PlayerState
     {
         Alive,
@@ -68,7 +69,8 @@ public class PlayerController : NetworkBehaviour
             Debug.Log(UserLoginData.userName.Value);
         }
         Initialization();
-        parent.GetComponent<PlayerManager>().SpawnObjectServerRpc(this.gameObject);
+        
+        transform.Find("PlayerManager").GetComponent<PlayerManager>().playerList.Add(this.gameObject);
     }
     [ServerRpc(RequireOwnership = true)]
     void setNameServerRpc(string name)
@@ -235,6 +237,7 @@ public class PlayerController : NetworkBehaviour
     void KillClientRpc(string name)
     {
         _sprite.color = Color.red;
+        _player.playerState = Player.PlayerState.Dead;
         Debug.Log(UserLoginData.userName + "‚ª" + name + "‚ÉŽE‚³‚ê‚Ü‚µ‚½");
     }
 

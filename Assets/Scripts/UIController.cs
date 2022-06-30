@@ -30,6 +30,14 @@ public class UIController : MonoBehaviour
             Debug.Log(_targetPlayer.Killed(UserLoginData.userName.Value));
         }
     }
+    public void OnUseButton()
+    {
+
+    }
+    public void OnSkillButton()
+    {
+
+    }
     public void OnStartButton()
     {
         SceneServerRpc();

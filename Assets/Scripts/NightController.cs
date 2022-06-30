@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using TMPro;
+using Unity.Netcode;
 
 public class NightController : MonoBehaviour
 {
@@ -25,9 +27,11 @@ public class NightController : MonoBehaviour
     List<GameObject> _panelList;
 
     public GameObject _panelLootObject; 
-    List<GameObject> _playerButtonList;
+    public List<GameObject> _playerButtonList;
+    public GameController gm;
 
     int targetPlayerID;
+    int targetItemID;
 
     // Start is called before the first frame update
     void Start()
@@ -43,8 +47,8 @@ public class NightController : MonoBehaviour
         };
         for (int i = 0; i < 9; i++)
         {
-            _playerButtonList.Add(_panelLootObject.transform.GetChild(0).GetChild(1).gameObject);
-            _playerButtonList[i].GetComponent<Text>().text = "PlayerName";
+            _playerButtonList.Add(_panelLootObject.transform.GetChild(i).GetChild(1).gameObject);
+            _playerButtonList[i].GetComponent<TextMeshProUGUI>().SetText("PlayerName");
         }
     }                
 
@@ -73,14 +77,16 @@ public class NightController : MonoBehaviour
         targetPlayerID = playerID;
         KillPanel.SetActive(false);
         KillPanel2.SetActive(true);
-        KillPanel2.transform.GetChild(0).GetComponent<Text>().text = "PlayerName";
-        KillPanel2.transform.GetChild(1).GetComponent<Image>().sprite = (Sprite)Resources.Load("/Image/Charctor/StandingPict/0"+playerID+"-2.png");
+        KillPanel2.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().SetText("PlayerName");
+        //KillPanel2.transform.GetChild(0).GetChild(1).GetComponent<Image>().sprite = (Sprite)Resources.Load("/Image/Charctor/StandingPict/0"+playerID+"-2.png");
     }
     /// <summary>
     /// 襲撃決定ボタン
     /// </summary>
     public void OnKillAcceptButton()
     {
+        //サーバーに襲撃のデータを送信
+        RaidPlayerServerRpc();
         Debug.Log(targetPlayerID+"を襲撃しました。");
         KillPanel2.SetActive(false);
         MenuPanel.SetActive(true);
@@ -98,7 +104,9 @@ public class NightController : MonoBehaviour
     /// </summary>
     public void OnSkillAcceptButton()
     {
-        
+        //サーバーにスキルの使用データを送信
+        Debug.Log("スキル使用"); 
+        UseSkillServerRpc();
         MenuPanel.SetActive(true);
         SkillPanel.SetActive(false);
     }
@@ -111,12 +119,24 @@ public class NightController : MonoBehaviour
         ItemPanel.SetActive(true);
     }
     /// <summary>
+    /// アイテム一覧ボタン
+    /// </summary>
+    public void OnItemSelectButton(int id)
+    {
+        targetItemID = id;
+        ItemPanel.SetActive(false);
+        ItemPanel2.SetActive(true);
+    }
+    /// <summary>
     /// アイテム決定ボタン
     /// </summary>
     public void OnItemUseButton()
     {
+        //サーバーにアイテムの使用を送信
+        Debug.Log(targetItemID + "のアイテムを使用");
+        UseItemServerRpc();
         MenuPanel.SetActive(true);
-        ItemPanel.SetActive(false);
+        ItemPanel2.SetActive(false);
     }
     /// <summary>
     /// キャンセルボタン
@@ -129,5 +149,20 @@ public class NightController : MonoBehaviour
             p.SetActive(false);
         }
         MenuPanel.SetActive(true);
+    }
+    [ServerRpc]
+    public void RaidPlayerServerRpc()
+    {
+        gm.RaidPlayer(targetPlayerID);
+    }
+    [ServerRpc]
+    public void UseItemServerRpc()
+    {
+
+    }
+    [ServerRpc]
+    public void UseSkillServerRpc()
+    {
+
     }
 }
