@@ -28,6 +28,8 @@ public class PlayerManager : NetworkBehaviour {
         gameController.pm = this;
 
     }
+
+    /*
     [ServerRpc]
     public void SpawnObjectServerRpc(GameObject gameObject)
     {
@@ -37,4 +39,5 @@ public class PlayerManager : NetworkBehaviour {
     {
         playerList.Add(playerController);
     }
+    */
 }
