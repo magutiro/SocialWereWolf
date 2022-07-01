@@ -9,7 +9,7 @@ using VivoxUnity;
 using UnityEngine.SceneManagement;
 using UniRx;
 using Unity.Netcode;
-public class VivoxManager : NetworkBehaviour
+public class VivoxManager : MonoBehaviour
 {
     private Client _client = null;
     /// <summary>
