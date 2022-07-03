@@ -69,8 +69,8 @@ public class PlayerController : NetworkBehaviour
             Debug.Log(UserLoginData.userName.Value);
         }
         Initialization();
-        
-        transform.Find("PlayerManager").GetComponent<PlayerManager>().playerList.Add(this.gameObject);
+
+        GameObject.Find("PlayerManager").GetComponent<PlayerManager>().playerList.Add(this.gameObject);
     }
     [ServerRpc(RequireOwnership = true)]
     void setNameServerRpc(string name)
