@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
+[System.SerializableAttribute]
 public class Item
 {
-    public static string name;
-    public static int id;
-    public static ItemEnum item;
+    public string name;
+    public int id;
+    public ItemEnum item;
     public enum ItemEnum
     {
         Field,
@@ -16,7 +17,7 @@ public class Item
 }
 public class ItemController : NetworkBehaviour
 {
-
+    
     void Start()
     {
         
@@ -25,5 +26,28 @@ public class ItemController : NetworkBehaviour
     void Update()
     {
         
+    }
+}
+/// <summary>
+/// ジェネリックを隠すために継承してしまう
+/// [System.Serializable]を書くのを忘れない
+/// </summary>
+[System.Serializable]
+public class ItemDictonary : Serialize.TableBase<Item,int, ItemDictionaryPair>
+{
+
+}
+
+/// <summary>
+/// ジェネリックを隠すために継承してしまう
+/// [System.Serializable]を書くのを忘れない
+/// </summary>
+[System.Serializable]
+public class ItemDictionaryPair : Serialize.KeyAndValue<Item, int>
+{
+
+    public ItemDictionaryPair(Item key, int value) : base(key, value)
+    {
+
     }
 }

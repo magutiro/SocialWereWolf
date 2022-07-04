@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
+[System.SerializableAttribute]
 public class Work
 {
     public enum Type
@@ -21,31 +25,49 @@ public class Work
     public State WorkState = State.Impossible;
     public string WorkName;
     
-    public Dictionary<Item, int> ItemDic;
-    public Dictionary<Item, int> InItemDic;
+    //必要なアイテムのデータ
+    //ItemDictonary<Item,Int>
+    public ItemDictonary ItemDic;
+    //実際に保持するアイテムデータ
+    public ItemDictonary InItemDic;
     public Work(int WorkId, int RoomId,Type type)
     {
         this.WorkId = WorkId;
         this.RoomId = RoomId;
         this.ItemType = type;
     }
-
-    public void SetItemDictionary(Item item){
-        ItemDic.Add(item, ItemDic.Count);
+    /// <summary>
+    /// ワークに必要なアイテムデータを事前にセットする
+    /// </summary>
+    /// <param name="item"></param>
+    public void SetItemDictionary(Item item, int amout){
+        ItemDic.Add(item, amout);
         InItemDic.Add(item, 0);
+        Debug.Log(item.name);
     }
+    /// <summary>
+    /// アイテムを納品するときにワークが完了するかどうか確認する
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="amout"></param>
     public void SetInItem(Item item, int amout)
     {
-        InItemDic[item] += amout;
-        foreach(var d in ItemDic)
+        //アイテムを納品する
+        InItemDic.GetTable()[item] += amout;
+        foreach(var d in ItemDic.GetTable())
         {
-            if(d.Value != InItemDic[d.Key])
+            //同じアイテムの個数が異なるかどうか判定。異なれば終了
+            if(d.Value != InItemDic.GetTable()[d.Key])
             {
                 return;
             }
         }
+        //ワークが完了したときのみ処理
         PossibleWork();
     }
+    /// <summary>
+    /// ワークが完了したときの処理
+    /// </summary>
     public void PossibleWork()
     {
         Debug.Log("完了");
@@ -57,47 +79,96 @@ public class WorkManager : MonoBehaviour
 {
     public int DailyWorkNum;
 
-    List<Work> WorkList = new List<Work>();
+    public List<Work> WorkList = new List<Work>();
     List<Work> DailyWorkList = new List<Work>();
 
     public List<Image> ImageList = new List<Image>();
 
-    
+    /// <summary>
+    /// Unityのエディタからワークを登録するときに使用する変数
+    /// </summary>
+#if UNITY_EDITOR
+    public Work TMPWork;
+    public List<int> listIndex;
+    public List<Item> itemList;
+    public List<int> amoutList;
+#endif
     // Start is called before the first frame update
     void Start()
     {
-        for(int i = 0; i < 10; i++)
-        {
-            WorkList.Add(CreateWork(i));
-            WorkList[i].SetItemDictionary(new Item());
-            SetItemImage(WorkList[i]);
-        }
+
+    }
+    // Update is called once per frame
+    void Update()
+    {
+
     }
 
     Work CreateWork(int id)
     {
         return new Work(id, Random.Range(0, 10),Work.Type.Repair);
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    /// <summary>
+    /// ワークに必要なアイテムのImageを設定する
+    /// </summary>
+    /// <param name="work"></param>
     private void SetItemImage(Work work)
     {
         int i = 0;
-        foreach(var a in work.ItemDic.Values)
+        foreach (var a in work.ItemDic.GetTable().Values)
         {
             ImageList[i].sprite = (Sprite)Resources.Load("");
             i++;
         }
     }
+    /// <summary>
+    /// 毎日のデイリーワークを設定する
+    /// </summary>
     public void AddWork()
     {
-        WorkList = new List<Work>();
+        DailyWorkList = new List<Work>();
         for (int w = 0; w < DailyWorkNum; w++)
         {
             DailyWorkList.Add(WorkList[Random.Range(0, 10)]);
         }
     }
+    /// <summary>
+    /// ワークの画面が開かれたときに必要なアイテムなどを表示する
+    /// </summary>
+    /// <param name="workID"></param>
+    public void ViewWork(int workID)
+    {
+        SetItemImage(WorkList[workID]);
+    }
+    /// <summary>
+    /// UnityEditorからワークを登録する処理
+    /// </summary>
+    public void CreateWork()
+    {
+        WorkList.Add(TMPWork);
+        int i=0;
+        foreach(var a in listIndex)
+        {
+            WorkList[WorkList.Count - 1].SetItemDictionary(itemList[a], amoutList[++i]) ;
+        }
+        Debug.Log(TMPWork.WorkName+"のワークが追加されました。");
+        TMPWork = null;
+    }
 }
+#if UNITY_EDITOR
+[CustomEditor(typeof(WorkManager))]
+public class WorkCreateEditer : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        WorkManager workManager = target as WorkManager;
+
+        if (GUILayout.Button("CreateWork"))
+        {
+            workManager.CreateWork();
+        }
+    }
+}
+#endif
