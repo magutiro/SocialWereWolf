@@ -2,21 +2,22 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
-//https://qiita.com/k_yanase/items/fb64ccfe1c14567a907d
+//using System.Reflection;
+//https://qiita.com/k_yanase/items/68e0410b16b4ea4920d2
 namespace Serialize
 {
 
-    /// <summary>
-    /// テーブルの管理クラス
-    /// </summary>
     [System.Serializable]
-    public class TableBase<TKey, TValue, Type> where Type : KeyAndValue<TKey, TValue>
+    public class TableBase<TKey, TValue, TPair> where TPair : KeyAndValue<TKey, TValue>, new()
     {
         [SerializeField]
-        private List<Type> list;
-        private Dictionary<TKey, TValue> table;
+        protected List<TPair> list;
+        protected Dictionary<TKey, TValue> table;
 
+        public TableBase()
+        {
+            list = new List<TPair>();
+        }
 
         public Dictionary<TKey, TValue> GetTable()
         {
@@ -26,24 +27,42 @@ namespace Serialize
             }
             return table;
         }
-        public void Add(TKey key, TValue value)
+
+        public TValue GetValue(TKey key)
         {
-            if (table == null)
+            if (GetTable().Keys.Contains(key))
             {
-                table = ConvertListToDictionary(list);
+                return GetTable()[key];
             }
-            //list.Add((Type)new Dictionary<TKey, TValue>() { key, value });
-            table.Add(key, value);
-        }
-        /// <summary>
-        /// Editor Only
-        /// </summary>
-        public List<Type> GetList()
-        {
-            return list;
+            //Debug.LogError(key +" は存在しないKeyです");
+            return default(TValue);
         }
 
-        static Dictionary<TKey, TValue> ConvertListToDictionary(List<Type> list)
+        public void SetValue(TKey key, TValue value)
+        {
+            if (GetTable().Keys.Contains(key))
+            {
+                //Debug.Log ("SetValue() Change Value.");
+                table[key] = value;
+            }
+            else
+            {
+                //Debug.Log ("SetValue() Add new table.");
+                table.Add(key, value);
+            }
+        }
+
+        public void Reset()
+        {
+            table = new Dictionary<TKey, TValue>();
+            list = new List<TPair>();
+        }
+        public void Apply()
+        {
+            list = ConvertDictionaryToList(table);
+        }
+
+        static Dictionary<TKey, TValue> ConvertListToDictionary(List<TPair> list)
         {
             Dictionary<TKey, TValue> dic = new Dictionary<TKey, TValue>();
             foreach (KeyAndValue<TKey, TValue> pair in list)
@@ -52,17 +71,33 @@ namespace Serialize
             }
             return dic;
         }
+
+        static List<TPair> ConvertDictionaryToList(Dictionary<TKey, TValue> table)
+        {
+            List<TPair> list = new List<TPair>();
+
+            if (table != null)
+            {
+                foreach (KeyValuePair<TKey, TValue> pair in table)
+                {
+                    TPair type = new TPair();
+                    type.Key = pair.Key;
+                    type.Value = pair.Value;
+                    list.Add(type);
+                }
+            }
+            return list;
+        }
     }
 
     /// <summary>
-    /// シリアル化できる、KeyValuePair
+    /// シリアル化できる、KeyValuePairに代わる構造体
     /// </summary>
     [System.Serializable]
     public class KeyAndValue<TKey, TValue>
     {
         public TKey Key;
         public TValue Value;
-
         public KeyAndValue(TKey key, TValue value)
         {
             Key = key;
@@ -73,7 +108,9 @@ namespace Serialize
             Key = pair.Key;
             Value = pair.Value;
         }
+        public KeyAndValue()
+        {
 
-
+        }
     }
 }

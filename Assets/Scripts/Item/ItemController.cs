@@ -33,7 +33,7 @@ public class ItemController : NetworkBehaviour
 /// [System.Serializable]‚ğ‘‚­‚Ì‚ğ–Y‚ê‚È‚¢
 /// </summary>
 [System.Serializable]
-public class ItemDictonary : Serialize.TableBase<Item,int, ItemDictionaryPair>
+public class ItemDictonary : Serialize.TableBase<Item,int,ItemDictionaryPair>
 {
 
 }
@@ -46,8 +46,4 @@ public class ItemDictonary : Serialize.TableBase<Item,int, ItemDictionaryPair>
 public class ItemDictionaryPair : Serialize.KeyAndValue<Item, int>
 {
 
-    public ItemDictionaryPair(Item key, int value) : base(key, value)
-    {
-
-    }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 
 [System.SerializableAttribute]
 public class Work
@@ -27,9 +29,9 @@ public class Work
     
     //必要なアイテムのデータ
     //ItemDictonary<Item,Int>
-    public ItemDictonary ItemDic;
+    public ItemDictonary ItemDic = new ItemDictonary();
     //実際に保持するアイテムデータ
-    public ItemDictonary InItemDic;
+    public ItemDictonary InItemDic = new ItemDictonary();
     public Work(int WorkId, int RoomId,Type type)
     {
         this.WorkId = WorkId;
@@ -41,8 +43,10 @@ public class Work
     /// </summary>
     /// <param name="item"></param>
     public void SetItemDictionary(Item item, int amout){
-        ItemDic.Add(item, amout);
-        InItemDic.Add(item, 0);
+        ItemDic.SetValue(item, amout);
+        ItemDic.Apply();
+        InItemDic.SetValue(item, 0);
+        InItemDic.Apply();
         Debug.Log(item.name);
     }
     /// <summary>
@@ -84,15 +88,6 @@ public class WorkManager : MonoBehaviour
 
     public List<Image> ImageList = new List<Image>();
 
-    /// <summary>
-    /// Unityのエディタからワークを登録するときに使用する変数
-    /// </summary>
-#if UNITY_EDITOR
-    public Work TMPWork;
-    public List<int> listIndex;
-    public List<Item> itemList;
-    public List<int> amoutList;
-#endif
     // Start is called before the first frame update
     void Start()
     {
@@ -106,7 +101,7 @@ public class WorkManager : MonoBehaviour
 
     Work CreateWork(int id)
     {
-        return new Work(id, Random.Range(0, 10),Work.Type.Repair);
+        return new Work(id, UnityEngine.Random.Range(0, 10),Work.Type.Repair);
     }
     /// <summary>
     /// ワークに必要なアイテムのImageを設定する
@@ -129,7 +124,7 @@ public class WorkManager : MonoBehaviour
         DailyWorkList = new List<Work>();
         for (int w = 0; w < DailyWorkNum; w++)
         {
-            DailyWorkList.Add(WorkList[Random.Range(0, 10)]);
+            DailyWorkList.Add(WorkList[UnityEngine.Random.Range(0, 10)]);
         }
     }
     /// <summary>
@@ -145,14 +140,70 @@ public class WorkManager : MonoBehaviour
     /// </summary>
     public void CreateWork()
     {
-        WorkList.Add(TMPWork);
-        int i=0;
-        foreach(var a in listIndex)
+        DataTable datatable = ConnectSqlite.GetSqliteQuery("Select * from Work");
+        if (datatable != null)
         {
-            WorkList[WorkList.Count - 1].SetItemDictionary(itemList[a], amoutList[++i]) ;
+            DataTable itemtable = ConnectSqlite.GetSqliteQuery("Select * from Item");
+            List<Item> itemList = new List<Item>();
+            if(itemtable != null)
+            {
+                foreach(var row in itemtable.Rows)
+                {
+                    var id = row["id"];
+                    var name = row["name"];
+                    Item itemTMP = new Item();
+                    itemTMP.id = (int)id;
+                    itemTMP.name = name.ToString();
+
+                    itemList.Add(itemTMP);
+                }
+            }
+
+            foreach (var row in datatable.Rows)
+            {
+                var id = row["id"];
+                var name = row["name"];
+                var roomid = row["roomid"];
+                var workType = row["workType"];
+                var itemid1 = row["itemid1"];
+                var itemAmout1 = row["amout1"];
+
+
+                Work workTMP = new Work((int)id, (int)roomid, (Work.Type)Enum.ToObject(typeof(Work.Type), (int)workType));
+                workTMP.WorkName = name.ToString();
+                Debug.Log(workTMP.WorkName);
+                workTMP.SetItemDictionary(itemList[(int)itemid1], (int)itemAmout1);
+
+                if(row["itemid2"] != null)
+                {
+                    var itemid2 = row["itemid2"];
+                    var itemAmout2 = row["amout2"];
+                    workTMP.SetItemDictionary(itemList[(int)itemid2], (int)itemAmout2);
+                }
+                if (row["itemid3"] != null)
+                {
+                    var itemid3 = row["itemid3"];
+                    var itemAmout3 = row["amout3"];
+                    workTMP.SetItemDictionary(itemList[(int)itemid3], (int)itemAmout3);
+                }
+
+                WorkList.Add(workTMP);
+
+            }
         }
-        Debug.Log(TMPWork.WorkName+"のワークが追加されました。");
-        TMPWork = null;
+    }
+
+    public void ImportCsv()
+    {
+        var items = CsvImporter.ImportItemCsv();
+        foreach(var i in items)
+        {
+            var id = i.id;
+            var name = i.name;
+            var type = i.item;
+            string sql = "INSERT INTO Item (id, name, type) VALUES (" + id + ", '" + name + "', " + (int)type + ")";
+            ConnectSqlite.SqliteInsert(sql);
+        }
     }
 }
 #if UNITY_EDITOR
@@ -168,6 +219,10 @@ public class WorkCreateEditer : Editor
         if (GUILayout.Button("CreateWork"))
         {
             workManager.CreateWork();
+        }
+        if (GUILayout.Button("ImportCSV"))
+        {
+            workManager.ImportCsv();
         }
     }
 }
