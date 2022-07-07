@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SQLiteUnity;
+using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -22,10 +24,18 @@ public class Work
         Impossible
     }
     public int WorkId;
-    public int RoomId;
-    public Type ItemType;
-    public State WorkState = State.Impossible;
     public string WorkName;
+    public int RoomId;
+
+    public int ItemId1;
+    public int ItemAmout1;
+    public int ItemId2;
+    public int ItemAmout2;
+    public int ItemId3;
+    public int ItemAmout3;
+
+    public Type WorkType;
+    public State WorkState = State.Impossible;
     
     //必要なアイテムのデータ
     //ItemDictonary<Item,Int>
@@ -36,7 +46,11 @@ public class Work
     {
         this.WorkId = WorkId;
         this.RoomId = RoomId;
-        this.ItemType = type;
+        this.WorkType = type;
+    }
+    public Work()
+    {
+
     }
     /// <summary>
     /// ワークに必要なアイテムデータを事前にセットする
@@ -47,7 +61,6 @@ public class Work
         ItemDic.Apply();
         InItemDic.SetValue(item, 0);
         InItemDic.Apply();
-        Debug.Log(item.name);
     }
     /// <summary>
     /// アイテムを納品するときにワークが完了するかどうか確認する
@@ -88,6 +101,16 @@ public class WorkManager : MonoBehaviour
 
     public List<Image> ImageList = new List<Image>();
 
+    [SerializeField]
+    GameObject WorkPanel;
+
+    [SerializeField]
+    TextMeshPro tmpText;
+
+    [SerializeField]
+    List<TextMeshPro> workInventryCountText;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -103,6 +126,11 @@ public class WorkManager : MonoBehaviour
     {
         return new Work(id, UnityEngine.Random.Range(0, 10),Work.Type.Repair);
     }
+    public void SetWorkItemCount(int i, int amout)
+    {
+        workInventryCountText[i].text = "×" + amout;
+    }
+
     /// <summary>
     /// ワークに必要なアイテムのImageを設定する
     /// </summary>
@@ -110,9 +138,14 @@ public class WorkManager : MonoBehaviour
     private void SetItemImage(Work work)
     {
         int i = 0;
+        for(int j = 0; j < 3; j++)
+        {
+            ImageList[j].gameObject.SetActive(false);
+        }
         foreach (var a in work.ItemDic.GetTable().Values)
         {
-            ImageList[i].sprite = (Sprite)Resources.Load("");
+            ImageList[i].gameObject.SetActive(true);
+            ImageList[i].sprite = (Sprite)Resources.Load(a.ToString());
             i++;
         }
     }
@@ -124,7 +157,7 @@ public class WorkManager : MonoBehaviour
         DailyWorkList = new List<Work>();
         for (int w = 0; w < DailyWorkNum; w++)
         {
-            DailyWorkList.Add(WorkList[UnityEngine.Random.Range(0, 10)]);
+            DailyWorkList.Add(WorkList[UnityEngine.Random.Range(0, WorkList.Count)]);
         }
     }
     /// <summary>
@@ -133,17 +166,23 @@ public class WorkManager : MonoBehaviour
     /// <param name="workID"></param>
     public void ViewWork(int workID)
     {
-        SetItemImage(WorkList[workID]);
+        WorkPanel.SetActive(true);
+        tmpText.text = DailyWorkList[workID].WorkName;
+        SetItemImage(DailyWorkList[workID]);
+    }
+    public void CloseWork()
+    {
+        WorkPanel.SetActive(false);
     }
     /// <summary>
     /// UnityEditorからワークを登録する処理
     /// </summary>
     public void CreateWork()
     {
-        DataTable datatable = ConnectSqlite.GetSqliteQuery("Select * from Work");
+        SQLiteTable datatable = ConnectSqlite.GetSqliteQuery("Select * from Work");
         if (datatable != null)
         {
-            DataTable itemtable = ConnectSqlite.GetSqliteQuery("Select * from Item");
+            SQLiteTable itemtable = ConnectSqlite.GetSqliteQuery("Select * from Item");
             List<Item> itemList = new List<Item>();
             if(itemtable != null)
             {
@@ -196,12 +235,35 @@ public class WorkManager : MonoBehaviour
     public void ImportCsv()
     {
         var items = CsvImporter.ImportItemCsv();
-        foreach(var i in items)
+        Debug.Log(Application.streamingAssetsPath);
+        ConnectSqlite.SqliteDelete("DELETE FROM Item;");
+        foreach (var i in items)
         {
             var id = i.id;
             var name = i.name;
             var type = i.item;
-            string sql = "INSERT INTO Item (id, name, type) VALUES (" + id + ", '" + name + "', " + (int)type + ")";
+            string sql = "INSERT INTO [Item] VALUES (" + id + ",\"" + name + "\"," + (int)type + ");";
+            ConnectSqlite.SqliteInsert(sql);
+        }
+    }
+    public void ImportWorkCSV()
+    {
+        var woks = CsvImporter.ImportWorkCsv();
+        ConnectSqlite.SqliteDelete("DELETE FROM Work;");
+        foreach (var w in woks)
+        {
+            var id = w.WorkId;
+            var name = w.WorkName;
+            var roomid = w.RoomId;
+            var workType = 0;
+            var itemid1 = w.ItemId1;
+            var itemid2 = w.ItemId2;
+            var itemid3 = w.ItemId3;
+            var itemAmout1 = w.ItemAmout1;
+            var itemAmout2 = w.ItemAmout2;
+            var itemAmout3 = w.ItemAmout3;
+
+            string sql = $"INSERT INTO Work (id, name, roomid, workType, itemid1, amout1, itemid2, amout2, itemid3, amout3) VALUES ({id}, '{name}', {roomid},{workType},{itemid1},{itemAmout1},{itemid2},{itemAmout2},{itemid3},{itemAmout3})";
             ConnectSqlite.SqliteInsert(sql);
         }
     }
@@ -220,9 +282,13 @@ public class WorkCreateEditer : Editor
         {
             workManager.CreateWork();
         }
-        if (GUILayout.Button("ImportCSV"))
+        if (GUILayout.Button("ImportItemToCSV"))
         {
             workManager.ImportCsv();
+        }
+        if (GUILayout.Button("ImportWorkToCSV"))
+        {
+            workManager.ImportWorkCSV();
         }
     }
 }

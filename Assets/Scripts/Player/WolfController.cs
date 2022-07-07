@@ -41,6 +41,21 @@ public class WolfController : MonoBehaviour
         {
             _uIController._targetPlayer = collision.gameObject.GetComponent<PlayerController>();
         }
+        if(collision.gameObject.tag == "work")
+        {
+            _uIController.hitterObject = collision.gameObject;
+            _uIController.useState = UIController.USEState.Work;
+        }
+        else if (collision.gameObject.tag == "item")
+        {
+            _uIController.hitterObject = collision.gameObject;
+            _uIController.useState = UIController.USEState.Item;
+        }
+        else if (collision.gameObject.tag == "dor")
+        {
+            _uIController.hitterObject = collision.gameObject;
+            _uIController.useState = UIController.USEState.Dor;
+        }
 
     }
 }

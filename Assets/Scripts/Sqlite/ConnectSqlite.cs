@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SQLiteUnity;
 
 public class ConnectSqlite : MonoBehaviour
 {
     private static string _fileName = "test.db";
+    // DB
+    public static SQLite Database;
     private void Start()
     {
 
@@ -15,8 +18,14 @@ public class ConnectSqlite : MonoBehaviour
     /// </summary>
     /// <param name="sql"></param>
     /// <returns></returns>
-    public static DataTable GetSqliteQuery(string sql)
+    public static SQLiteTable GetSqliteQuery(string sql)
     {
+        Database = new SQLite(_fileName);
+
+        return Database.ExecuteQuery(sql);
+
+
+        /*
         try
         {
             //sqliteÇÃdbÉtÉ@ÉCÉã
@@ -29,6 +38,16 @@ public class ConnectSqlite : MonoBehaviour
             Debug.Log(ex);
             return null;
         }
+        */
+
+        
+    }
+    public static void SqliteDelete(string sql)
+    {
+        Database = new SQLite(_fileName);
+
+        Database.ExecuteNonQuery(sql);
+        Debug.Log(sql);
     }
     /// <summary>
     /// Insertï∂ÇÃÇ›
@@ -36,16 +55,21 @@ public class ConnectSqlite : MonoBehaviour
     /// <param name="sql"></param>
     public static void SqliteInsert(string sql)
     {
+        Database = new SQLite(_fileName);
+
+        Database.ExecuteNonQuery(sql);
         Debug.Log(sql);
+        /*
         try
         {
             var db = new SqliteDatabase(_fileName);
-            db.ExecuteQuery(sql);
+            db.ExecuteNonQuery(sql);
         }
         catch
         {
             throw;
         }
+        */
     }
     /// <summary>
     /// Updateä÷êîÇÃÇ›
@@ -65,7 +89,7 @@ public class ConnectSqlite : MonoBehaviour
     }
     public static void sample()
     {
-        DataTable s;
+        SQLiteTable s;
         s = GetSqliteQuery("SELECT * FROM Item");
         if (s != null)
         {

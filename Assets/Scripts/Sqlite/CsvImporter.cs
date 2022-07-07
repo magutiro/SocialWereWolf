@@ -37,7 +37,7 @@ public class CsvImporter : MonoBehaviour
         TextAsset textasset = new TextAsset();
         //先ほど用意したcsvファイルを読み込ませる。
         //ファイルは「Resources」フォルダを作り、そこに入れておくこと。また"CSVTestData"の部分はファイル名に合わせて変更する。
-        textasset = Resources.Load("Work.csv", typeof(TextAsset)) as TextAsset;
+        textasset = Resources.Load("Work", typeof(TextAsset)) as TextAsset;
         //CSVSerializerを用いてcsvファイルを配列に流し込む。
         works = CSVSerializer.Deserialize<Work>(textasset.text);
 
