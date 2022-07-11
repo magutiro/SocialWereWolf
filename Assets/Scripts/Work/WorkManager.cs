@@ -99,21 +99,40 @@ public class WorkManager : MonoBehaviour
     public List<Work> WorkList = new List<Work>();
     List<Work> DailyWorkList = new List<Work>();
 
-    public List<Image> ImageList = new List<Image>();
+    List<Image> ImageList = new List<Image>();
 
     [SerializeField]
     GameObject WorkPanel;
 
     [SerializeField]
+    GameObject textTMP;
+
     TextMeshPro tmpText;
 
     [SerializeField]
-    List<TextMeshPro> workInventryCountText;
+    List<GameObject> workInventryObject;
+
+    List<TextMeshProUGUI> workInventryCountText = new List<TextMeshProUGUI>();
+    
+    [SerializeField]
+    List<GameObject> workInInventryObject= new List<GameObject>();
+
+    List<TextMeshProUGUI> workInInventryCountText = new List<TextMeshProUGUI>();
 
 
     // Start is called before the first frame update
     void Start()
     {
+        tmpText = textTMP.GetComponent<TextMeshPro>();
+        foreach(var i in workInventryObject)
+        {
+            workInventryCountText.Add(i.transform.GetChild(0).GetComponent<TextMeshProUGUI>());
+            ImageList.Add(i.gameObject.GetComponent<Image>());
+        }
+        foreach (var i in workInInventryObject)
+        {
+            workInInventryCountText.Add(i.transform.GetChild(0).GetComponent<TextMeshProUGUI>());
+        }
 
     }
     // Update is called once per frame
