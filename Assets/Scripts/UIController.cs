@@ -17,7 +17,7 @@ public class UIController : MonoBehaviour
         Item,
         Dor
     }
-    public USEState useState;
+    public USEState useState = USEState.Work;
     // Start is called before the first frame update
     void Start()
     {
@@ -48,6 +48,7 @@ public class UIController : MonoBehaviour
             case USEState.Item:
                 break;
             case USEState.Work:
+                Debug.Log(hitterObject.name);
                 hitterObject.GetComponent<WorkController>().OnUseButton();
                 break;
         }

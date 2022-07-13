@@ -1,0 +1,17 @@
+{
+	"Version": 3,
+	"Parameters": [
+		{
+			"Id": "Param",
+			"GroupId": "",
+			"Name": "全身Y"
+		},
+		{
+			"Id": "Param2",
+			"GroupId": "",
+			"Name": "腕降り"
+		}
+	],
+	"ParameterGroups": [],
+	"Parts": []
+}

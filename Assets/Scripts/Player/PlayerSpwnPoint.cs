@@ -6,7 +6,7 @@ public class PlayerSpwnPoint : MonoBehaviour
 {
     Transform[] _spwnPoints;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         _spwnPoints = GetComponentsInChildren<Transform>();
     }

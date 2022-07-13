@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using SQLiteUnity;
 using TMPro;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -97,7 +98,7 @@ public class WorkManager : MonoBehaviour
     public int DailyWorkNum;
 
     public List<Work> WorkList = new List<Work>();
-    List<Work> DailyWorkList = new List<Work>();
+    public List<Work> DailyWorkList = new List<Work>();
 
     List<Image> ImageList = new List<Image>();
 
@@ -107,7 +108,7 @@ public class WorkManager : MonoBehaviour
     [SerializeField]
     GameObject textTMP;
 
-    TextMeshPro tmpText;
+    TextMeshProUGUI tmpText = new TextMeshProUGUI();
 
     [SerializeField]
     List<GameObject> workInventryObject;
@@ -123,7 +124,7 @@ public class WorkManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tmpText = textTMP.GetComponent<TextMeshPro>();
+        tmpText = textTMP.GetComponent<TextMeshProUGUI>();
         foreach(var i in workInventryObject)
         {
             workInventryCountText.Add(i.transform.GetChild(0).GetComponent<TextMeshProUGUI>());
@@ -133,6 +134,7 @@ public class WorkManager : MonoBehaviour
         {
             workInInventryCountText.Add(i.transform.GetChild(0).GetComponent<TextMeshProUGUI>());
         }
+        AddWork();
 
     }
     // Update is called once per frame
@@ -185,9 +187,14 @@ public class WorkManager : MonoBehaviour
     /// <param name="workID"></param>
     public void ViewWork(int workID)
     {
-        WorkPanel.SetActive(true);
-        tmpText.text = DailyWorkList[workID].WorkName;
-        SetItemImage(DailyWorkList[workID]);
+        var works = DailyWorkList.Where(w => w.WorkId == workID);
+        foreach (var w in works)
+        {
+            Debug.Log(w.WorkName);
+            WorkPanel.SetActive(true);
+            tmpText.text = w.WorkName;
+            SetItemImage(w);
+        }
     }
     public void CloseWork()
     {

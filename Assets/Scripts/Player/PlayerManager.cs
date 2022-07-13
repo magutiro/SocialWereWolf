@@ -11,7 +11,7 @@ public class PlayerManager : NetworkBehaviour {
     // Start is called before the first frame update
     void Start()
     {
-
+        DontDestroyOnLoad(this);
         SceneManager.sceneLoaded += SceneUnloaded;
     }
     void Awake()

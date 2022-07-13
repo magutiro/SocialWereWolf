@@ -7,6 +7,7 @@ using UniRx;
 using Unity.Netcode;
 using System;
 using System.Linq;
+using TMPro;
 
 public enum GameState
 {
@@ -28,7 +29,7 @@ public class GameController : NetworkBehaviour
 {
     //float _gameTime = 300;
     [SerializeField]
-    private Text _timeText;
+    private TextMeshProUGUI _timeText;
     [SerializeField]
     private GameObject _meetingPanel;
     [SerializeField]
@@ -90,6 +91,7 @@ public class GameController : NetworkBehaviour
         {
             SetPlayerDictionaryClientRpc(dir.Key, dir.Value);
         }
+        
         //プレイヤーの人数カウントを追加
         _playerCount.Value++;
     }
@@ -108,7 +110,7 @@ public class GameController : NetworkBehaviour
     {
         if (SceneManager.GetActiveScene().name == "InGameScene")
         {
-            _timeText = GameObject.Find("TimeText").GetComponent<Text>();
+            _timeText = GameObject.Find("TimeText").GetComponent<TextMeshProUGUI>();
         }
         //ゲームの状態が変化したときにInit()を実行
         _gameState
@@ -119,6 +121,8 @@ public class GameController : NetworkBehaviour
         {
             _playerCount.OnValueChanged += OnAddPlayerCount();
         }
+        _playerVoteController = GameObject.Find("Player（clone）").GetComponent<PlayerVoteController>();
+        pm = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
     }
     //プレイヤーカウントが増えたあとに自身のIDと名前を登録する
     private NetworkVariable<int>.OnValueChangedDelegate OnAddPlayerCount()
@@ -151,7 +155,7 @@ public class GameController : NetworkBehaviour
         }
         //xx：xx
 
-        //_timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
+        _timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
 
     }
     void Init()

@@ -64,10 +64,11 @@ public class ItemDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
             // Ç‡Çµ DroppableField ÇÃè„Ç»ÇÁÅAÇªÇÃà íuÇ…å≈íËÇ∑ÇÈ
             if (hit.gameObject.CompareTag("DroppableField"))
             {
-                transform.position = hit.gameObject.transform.position;
+
                 transform.parent = hit.gameObject.transform;
-                this.enabled = false;
-                workManager.SetWorkItemCount(0,1);
+                //this.enabled = false;
+                workManager.SetWorkItemCount(0, 1);
+                break;
             }
         }
     }
