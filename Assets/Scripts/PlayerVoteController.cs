@@ -33,7 +33,7 @@ public class PlayerVoteController :MonoBehaviour
         _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         for(int i = 0; i < 9; i++)
         {
-            _playerVoteButtons[i] = GameObject.Find("PlayerVoteButton（"+i+"）").GetComponent<Button>();
+            _playerVoteButtons.Add(GameObject.Find("PlayerVoteButton（"+i+"）").GetComponent<Button>());
             _playerVoteButtons[i].onClick.AddListener(() => OnSetVoteButton(i));
         }
         GameObject.Find("VoteButton").GetComponent<Button>().onClick.AddListener(() => OnVoteButton());

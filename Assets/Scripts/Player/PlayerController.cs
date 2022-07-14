@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UniRx;
+using TMPro;
 
 public class Player
 {
@@ -94,6 +95,7 @@ public class PlayerController : NetworkBehaviour
 
         var otherNameText = transform.Find("Name").gameObject;
         otherNameText.GetComponent<TextMesh>().text = _name.Value.ToString();
+        Debug.Log(_name.Value.ToString());
 
         if (!IsOwner)
         {

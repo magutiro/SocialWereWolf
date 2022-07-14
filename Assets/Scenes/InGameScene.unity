@@ -12992,6 +12992,8 @@ MonoBehaviour:
   - {fileID: 8212523121748919454}
   - {fileID: 2128407950}
   - {fileID: 1553280132}
+  uiController: {fileID: 0}
+  distance: 5
 --- !u!4 &1172511978
 Transform:
   m_ObjectHideFlags: 0
@@ -19759,7 +19761,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 298f504c385824d2ba4d29c3eff0ba45, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 40b7c07f32e8e9342839eb79045ba73d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

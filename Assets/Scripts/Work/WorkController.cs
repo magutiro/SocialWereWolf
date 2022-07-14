@@ -27,6 +27,14 @@ public class WorkController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (workManager.uiController.hitterObject != null && 
+            Vector2.Distance(transform.position, workManager.uiController.hitterObject.transform.position) > workManager.distance)
+        {
+            workManager.CloseWork();
+            isPlayerHit = false;
+        }
+
+
 #if UNITY_EDITOR
         if (EventSystem.current.IsPointerOverGameObject()) return;
 #else
@@ -47,7 +55,6 @@ public class WorkController : MonoBehaviour
             if (!hit2d)
             {
                 workManager.CloseWork();
-                isPlayerHit = false;
 
             }
         }

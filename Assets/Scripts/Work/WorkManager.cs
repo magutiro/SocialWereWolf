@@ -120,7 +120,8 @@ public class WorkManager : MonoBehaviour
 
     List<TextMeshProUGUI> workInInventryCountText = new List<TextMeshProUGUI>();
 
-
+    public UIController uiController;
+    public float distance = 5f;
     // Start is called before the first frame update
     void Start()
     {
@@ -135,6 +136,7 @@ public class WorkManager : MonoBehaviour
             workInInventryCountText.Add(i.transform.GetChild(0).GetComponent<TextMeshProUGUI>());
         }
         AddWork();
+        uiController = GameObject.Find("UIController").GetComponent<UIController>();
 
     }
     // Update is called once per frame
@@ -161,11 +163,15 @@ public class WorkManager : MonoBehaviour
         int i = 0;
         for(int j = 0; j < 3; j++)
         {
-            ImageList[j].gameObject.SetActive(false);
+            ImageList[j].gameObject.SetActive(false); 
+            workInInventryObject[i].SetActive(false);
+            workInventryObject[i].SetActive(false);
         }
         foreach (var a in work.ItemDic.GetTable().Values)
         {
-            ImageList[i].gameObject.SetActive(true);
+            ImageList[i].gameObject.SetActive(true); 
+            workInInventryObject[i].SetActive(false);
+            workInventryObject[i].SetActive(true);
             ImageList[i].sprite = (Sprite)Resources.Load(a.ToString());
             i++;
         }
