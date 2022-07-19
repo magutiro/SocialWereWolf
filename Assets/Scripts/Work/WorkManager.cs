@@ -121,7 +121,7 @@ public class WorkManager : MonoBehaviour
     List<TextMeshProUGUI> workInInventryCountText = new List<TextMeshProUGUI>();
 
     public UIController uiController;
-    public float distance = 5f;
+    public float distance = 10f;
     // Start is called before the first frame update
     void Start()
     {
@@ -172,7 +172,7 @@ public class WorkManager : MonoBehaviour
             ImageList[i].gameObject.SetActive(true); 
             workInInventryObject[i].SetActive(false);
             workInventryObject[i].SetActive(true);
-            ImageList[i].sprite = (Sprite)Resources.Load(a.ToString());
+            ImageList[i].sprite = Resources.Load<Sprite>("UI/Item/Item" + a);
             i++;
         }
     }
@@ -196,7 +196,7 @@ public class WorkManager : MonoBehaviour
         var works = DailyWorkList.Where(w => w.WorkId == workID);
         foreach (var w in works)
         {
-            Debug.Log(w.WorkName);
+            Debug.Log(w.WorkName + "‰æ–Ê•\Ž¦");
             WorkPanel.SetActive(true);
             tmpText.text = w.WorkName;
             SetItemImage(w);

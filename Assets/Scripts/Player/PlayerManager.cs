@@ -8,6 +8,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public GameController gameController;
     public List<GameObject> playerList;
+    public GameObject myPlayer;
     // Start is called before the first frame update
     void Start()
     {

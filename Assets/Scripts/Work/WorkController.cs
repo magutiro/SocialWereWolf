@@ -14,22 +14,24 @@ public class WorkController : MonoBehaviour
     public int _workID;
 
     Vector2 mousePos = Vector2.zero;
+    public PlayerManager pm;
     
     // Start is called before the first frame update
     void Start()
     {
         workManager = transform.root.GetComponent<WorkManager>();
         mousePos = GameObject.Find("EventSystem").gameObject.GetComponent<PlayerInput>().currentActionMap["MousePos"].ReadValue<Vector2>();
-        
+        pm = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
         GetWork();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (workManager.uiController.hitterObject != null && 
-            Vector2.Distance(transform.position, workManager.uiController.hitterObject.transform.position) > workManager.distance)
+        if (workManager.uiController.hitterObject == this.gameObject && 
+            Vector2.Distance(transform.position, pm.myPlayer.transform.position) > workManager.distance)
         {
+            Debug.Log(Vector2.Distance(transform.position, pm.myPlayer.transform.position));  
             workManager.CloseWork();
             isPlayerHit = false;
         }

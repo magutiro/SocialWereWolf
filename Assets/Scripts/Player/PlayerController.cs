@@ -39,6 +39,7 @@ public class PlayerController : NetworkBehaviour
     Rigidbody2D rgd2D;
     SpriteRenderer _sprite;
     InputAction move;
+    [SerializeField]
     FixedJoystick joystick;
 
     public Player _player;
@@ -70,6 +71,7 @@ public class PlayerController : NetworkBehaviour
         {
             setNameServerRpc(UserLoginData.userName.Value);
             Debug.Log(UserLoginData.userName.Value);
+            GameObject.Find("PlayerManager").GetComponent<PlayerManager>().myPlayer = this.gameObject;
         }
         Initialization();
         playerAnimController = GetComponent<PlayerAnimController>();
@@ -91,7 +93,7 @@ public class PlayerController : NetworkBehaviour
 
         parent = GameObject.Find("PlayerManager");
         joystick = GameObject.Find("Fixed Joystick").GetComponent<FixedJoystick>();
-        _vivoxManager = parent.GetComponent<VivoxManager>();
+        _vivoxManager = GameObject.Find("Vivox").GetComponent<VivoxManager>();
 
         var otherNameText = transform.Find("Name").gameObject;
         otherNameText.GetComponent<TextMesh>().text = _name.Value.ToString();
@@ -139,8 +141,7 @@ public class PlayerController : NetworkBehaviour
 #if CLIENT
         if (!_vivoxManager)
         {
-            parent = GameObject.Find("PlayerManager");
-            _vivoxManager = parent.GetComponent<VivoxManager>();
+            _vivoxManager = GameObject.Find("Vivox").GetComponent<VivoxManager>();
         }
         if (IsOwner && _vivoxManager)
         {

@@ -39,13 +39,13 @@ public class GameController : NetworkBehaviour
     [SerializeField]
     private GameObject _votePanel;
     [SerializeField]
-    private const float _morningTime = 90;
+    private float _morningTime = 90;
     [SerializeField]
-    private const float _dayTime = 300;
+    private float _dayTime = 300;
     [SerializeField]
-    private const float _nightTime = 60;
+    private float _nightTime = 60;
     [SerializeField]
-    private const float _eveningTime = 150;
+    private float _eveningTime = 150;
     [SerializeField]
     private const int MAX_PLAYER = 9;
 
@@ -70,11 +70,13 @@ public class GameController : NetworkBehaviour
     public PlayerManager pm;
 
     public PlayerVoteController _playerVoteController;
+    public VoteController _voteController;
 
     public GameObject NightCamera;
     //オブジェクトがスポーンしたとき
     public override void OnNetworkSpawn()
     {
+        _gameTime.Value = _dayTime;
         if (IsOwner)
         {
             SetPlayerCountServerRpc();
@@ -103,7 +105,10 @@ public class GameController : NetworkBehaviour
     [Unity.Netcode.ClientRpc]
     private void SetPlayerDictionaryClientRpc(int key, string value)
     {
-        _playerId.Add(key, value);
+        if (_playerId.ContainsKey(key))
+        {
+            _playerId.Add(key, value);
+        }
     }
     // Start is called before the first frame update
     void Start()
@@ -121,7 +126,8 @@ public class GameController : NetworkBehaviour
         {
             _playerCount.OnValueChanged += OnAddPlayerCount();
         }
-        _playerVoteController = GameObject.Find("Player（clone）").GetComponent<PlayerVoteController>();
+        _playerVoteController = GameObject.Find("Player(Clone)").GetComponent<PlayerVoteController>();
+        _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         pm = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
     }
     //プレイヤーカウントが増えたあとに自身のIDと名前を登録する
@@ -129,7 +135,10 @@ public class GameController : NetworkBehaviour
     {
         if (IsClient)
         {
-            _playerId.Add(_playerCount.Value, UserLoginData.userName.Value);
+            if (_playerId.ContainsKey(_playerCount.Value))
+            {
+                _playerId.Add(_playerCount.Value, UserLoginData.userName.Value);
+            }
         }
         SetPlayerIDServerRpc(_playerCount.Value, UserLoginData.userName.Value);
         return null;
@@ -178,17 +187,18 @@ public class GameController : NetworkBehaviour
     }
     void InitMorning()
     {
+        Debug.Log("<color=blue>朝が来ました。</color>");
         if (IsServer)
         {
             _gameTime.Value = _morningTime;
         }
-        Debug.Log(ValueDictionary[_raidPlayerID.Value] + "を襲撃しました。");
         pm.playerList[_raidPlayerID.Value].GetComponent<PlayerController>().Killed(UserLoginData.userName.Value);
-        _meetingPanel.SetActive(true);
         _nightPanel.SetActive(false);
-        _playerVoteController.ResetVoteImages();
+        _meetingPanel.SetActive(true);
         NightCamera.SetActive(false);
         pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(true);
+        //_voteController.ResetVoteImages();
+        Debug.Log(ValueDictionary[_raidPlayerID.Value] + "を襲撃しました。");
     }
 
     void InitDaytime()
@@ -209,8 +219,8 @@ public class GameController : NetworkBehaviour
         _dayPanel.SetActive(false);
         _meetingPanel.SetActive(true);
         _votePanel.SetActive(true);
-        _playerVoteController.ResetVoteImages();
-        pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(false);
+        _voteController.ResetVoteImages();
+        //pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(false);
     }
     void InitNight()
     {

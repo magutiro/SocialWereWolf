@@ -16,7 +16,7 @@ public class DeviceTest : MonoBehaviour
 #if CLIENT
     void Start()
     {
-        _vivox = GameObject.Find("PlayerManager").GetComponent<VivoxManager>();
+        _vivox = GameObject.Find("Vivox").GetComponent<VivoxManager>();
     }
 
     // Update is called once per frame
