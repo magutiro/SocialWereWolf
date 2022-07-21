@@ -126,6 +126,10 @@ public class GameController : NetworkBehaviour
         {
             _playerCount.OnValueChanged += OnAddPlayerCount();
         }
+        if (IsServer)
+        {
+            PlayerJobSelecter.SetJobList();
+        }
         _playerVoteController = GameObject.Find("Player(Clone)").GetComponent<PlayerVoteController>();
         _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         pm = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
@@ -139,8 +143,8 @@ public class GameController : NetworkBehaviour
             {
                 _playerId.Add(_playerCount.Value, UserLoginData.userName.Value);
             }
+            SetPlayerIDServerRpc(_playerCount.Value, UserLoginData.userName.Value);
         }
-        SetPlayerIDServerRpc(_playerCount.Value, UserLoginData.userName.Value);
         return null;
     }
     [ServerRpc]
@@ -151,9 +155,9 @@ public class GameController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        GameStateMethod();
         if (IsServer)
         {
-            GameStateMethod();
             // écÇËéûä‘ÇåvéZÇ∑ÇÈ
             _gameTime.Value -= Time.deltaTime;
             // É[Éçïbà»â∫Ç…Ç»ÇÁÇ»Ç¢ÇÊÇ§Ç…Ç∑ÇÈ
@@ -198,11 +202,12 @@ public class GameController : NetworkBehaviour
         NightCamera.SetActive(false);
         pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(true);
         //_voteController.ResetVoteImages();
-        Debug.Log(ValueDictionary[_raidPlayerID.Value] + "ÇèPåÇÇµÇ‹ÇµÇΩÅB");
+        //Debug.Log(ValueDictionary[_raidPlayerID.Value] + "ÇèPåÇÇµÇ‹ÇµÇΩÅB");
     }
 
     void InitDaytime()
     {
+        Debug.Log("<color=blue>íãÇ™óàÇ‹ÇµÇΩÅB</color>");
         if (IsServer)
         {
             _gameTime.Value = _dayTime;
@@ -212,6 +217,7 @@ public class GameController : NetworkBehaviour
     }
     void InitEvening()
     {
+        Debug.Log("<color=blue>ó[ï˚Ç™óàÇ‹ÇµÇΩÅB</color>");
         if (IsServer)
         {
             _gameTime.Value = _eveningTime;
@@ -224,6 +230,7 @@ public class GameController : NetworkBehaviour
     }
     void InitNight()
     {
+        Debug.Log("<color=blue>ñÈÇ™óàÇ‹ÇµÇΩÅB</color>");
         if (IsServer)
         {
             _gameTime.Value = _nightTime;

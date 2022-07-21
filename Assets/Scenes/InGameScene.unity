@@ -4374,7 +4374,6 @@ GameObject:
   m_Component:
   - component: {fileID: 278341065}
   - component: {fileID: 278341064}
-  - component: {fileID: 278341067}
   - component: {fileID: 278341066}
   m_Layer: 0
   m_Name: MapImage
@@ -4649,27 +4648,6 @@ EdgeCollider2D:
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
   m_UseAdjacentEndPoint: 0
---- !u!50 &278341067
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 278341063}
-  m_BodyType: 0
-  m_Simulated: 0
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!1 &288976907
 GameObject:
   m_ObjectHideFlags: 0
@@ -16224,7 +16202,7 @@ GameObject:
   - component: {fileID: 1222911832}
   - component: {fileID: 1222911831}
   m_Layer: 5
-  m_Name: FunctionButton
+  m_Name: SkillButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16295,7 +16273,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1187186316}
         m_TargetAssemblyTypeName: UIController, Assembly-CSharp
-        m_MethodName: OnSkillButton
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Linq;
 using System;
+using UniRx;
 
 public enum Job
 {
@@ -21,6 +22,7 @@ public static class PlayerJobSelecter
     public static List<Job> jobs = new List<Job>() { };
     public static void SetJobList()
     {
+        jobs.Clear();
         foreach(var job in DJobs)
         {
             for(int j = 0; j < job.Value; j++)
@@ -41,13 +43,26 @@ public static class PlayerJobSelecter
     }
 
 }
+[System.Serializable]
+public class JobStateReactiveProperty : ReactiveProperty<Job>
+{
+    public JobStateReactiveProperty() { }
+
+    public JobStateReactiveProperty(Job initialValue) : base(initialValue) { }
+
+}
 public class PlayerJobState : NetworkBehaviour
 {
-
+    //public Job playerjob;
+    public JobStateReactiveProperty playerjob = new JobStateReactiveProperty();
     // Start is called before the first frame update
     void Start()
     {
-
+        if (IsServer)
+        {
+            playerjob.Value = PlayerJobSelecter.GetPlayerJob();
+            Debug.Log(playerjob.Value.ToString());
+        }
     }
 
     // Update is called once per frame

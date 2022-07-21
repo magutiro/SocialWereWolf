@@ -36,6 +36,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     private Vector3 _moveVector;
 
+
+
     Rigidbody2D rgd2D;
     SpriteRenderer _sprite;
     InputAction move;
@@ -66,6 +68,7 @@ public class PlayerController : NetworkBehaviour
     void Start()
     {
         _player = new Player(10f, 2, 20);
+
         SceneManager.sceneLoaded += SceneUnloaded;
         if (IsOwner)
         {
@@ -165,7 +168,7 @@ public class PlayerController : NetworkBehaviour
             inputMoveAxis.x = inputMoveAxis.x == 0 ? joystick.Horizontal : inputMoveAxis.x;
             inputMoveAxis.y = inputMoveAxis.y == 0 ? joystick.Vertical : inputMoveAxis.y;
             //ì¸óÕÇ™Ç»Ç¢èÍçáÇ…ìÆÇ´Çé~ÇﬂÇÈ
-            if (inputMoveAxis.y == 0 && inputMoveAxis.x == 0)
+            if ( gameController!=null&&gameController._gameState.Value != GameState.Daytime && (inputMoveAxis.y == 0 && inputMoveAxis.x == 0))
             {
                 rgd2D.velocity = Vector3.zero;
                 SetMoveInputServerRpc(inputMoveAxis);
@@ -224,7 +227,6 @@ public class PlayerController : NetworkBehaviour
     }
     public void MovePlayer()
     {
-
         _moveVector = _moveVector.normalized;
         _moveVector2.Value = _moveVector2.Value.normalized;
         rgd2D.velocity = _moveVector2.Value * _player._playerSpeed;

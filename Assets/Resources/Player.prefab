@@ -117,6 +117,8 @@ GameObject:
   - component: {fileID: 6526337677221908415}
   - component: {fileID: 1089383652}
   - component: {fileID: 4543249997456886917}
+  - component: {fileID: 5736380490919376422}
+  - component: {fileID: 6622930933304370120}
   m_Layer: 0
   m_Name: Player
   m_TagString: OtherPlayer
@@ -288,6 +290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveVector: {x: 0, y: 0, z: 0}
+  joystick: {fileID: 0}
   _vivoxManager: {fileID: 0}
   gameController: {fileID: 0}
   _moveVector2:
@@ -341,9 +344,9 @@ MonoBehaviour:
   SyncRotAngleX: 0
   SyncRotAngleY: 0
   SyncRotAngleZ: 0
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
@@ -400,6 +403,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uIController: {fileID: 0}
+--- !u!114 &5736380490919376422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486438273854066249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64797d47c61c37e42bef5abbb2aaaf0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _hpSell:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  HP:
+    value: 10
+--- !u!114 &6622930933304370120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486438273854066249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb951a54dcdbd7044a1fc03f06fa12c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SkillID: 1
 --- !u!1 &5486438275156418328
 GameObject:
   m_ObjectHideFlags: 0

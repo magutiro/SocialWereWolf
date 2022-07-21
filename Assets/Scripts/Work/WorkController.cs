@@ -31,7 +31,6 @@ public class WorkController : MonoBehaviour
         if (workManager.uiController.hitterObject == this.gameObject && 
             Vector2.Distance(transform.position, pm.myPlayer.transform.position) > workManager.distance)
         {
-            Debug.Log(Vector2.Distance(transform.position, pm.myPlayer.transform.position));  
             workManager.CloseWork();
             isPlayerHit = false;
         }
@@ -40,7 +39,7 @@ public class WorkController : MonoBehaviour
 #if UNITY_EDITOR
         if (EventSystem.current.IsPointerOverGameObject()) return;
 #else
-   if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))return;
+   if (Input.touchCount > 0 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))return;
 #endif
         if (isPlayerHit && Mouse.current.leftButton.wasPressedThisFrame)
         {
