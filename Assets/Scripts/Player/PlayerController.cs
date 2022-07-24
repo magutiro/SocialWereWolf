@@ -136,6 +136,7 @@ public class PlayerController : NetworkBehaviour
     }
     private void StateInit()
     {
+        if (!IsOwner) return;
         switch (gameController._gameState.Value)
         {
             case GameState.Morning:

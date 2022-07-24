@@ -16,6 +16,8 @@ public class VoteController : NetworkBehaviour
     int _targetPlayerId = 0;
     NetworkVariable<int> voteCount = new NetworkVariable<int>(0);
 
+    bool isVote = false;
+
     private void Start()
     {
         playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
@@ -105,6 +107,7 @@ public class VoteController : NetworkBehaviour
             }
             _playerVoteButtons[p].colors = colorblock;
         }
+        isVote = false;
     }
     [ServerRpc(RequireOwnership = false)]
     public void SetVoteServerRpc(int PlayerID)
@@ -116,13 +119,18 @@ public class VoteController : NetworkBehaviour
     //“Š•[ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
     public void OnVoteButton()
     {
+        if (isVote)
+        {
+            return;
+        }
+        isVote = true;
         SetVoteServerRpc(_targetPlayerId);
         Debug.Log(_targetPlayerId + "‚É“Š•[‚µ‚Ü‚µ‚½B");
     }
     //“Š•[æ‚ÌƒvƒŒƒCƒ„[‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
     public void OnSetVoteButton(int playerId)
     {
-        Debug.Log(playerId);
+        Debug.Log(playerId + "‚É“Š•[");
         _targetPlayerId = playerId;
         voteText.text = playerManager.playerList[_targetPlayerId].GetComponent<PlayerController>()._name.Value + "‚É“Š•[’†";
     }
