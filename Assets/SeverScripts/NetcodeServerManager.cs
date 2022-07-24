@@ -5,8 +5,9 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Linq;
 using UnityEngine.Networking.Match;
+using UnityEngine.SceneManagement;
 
-public class NetcodeServerManager : MonoBehaviour
+public class NetcodeServerManager : SingletonMonoBehaviour<NetcodeServerManager>
 {
     //private string _textIpAddress = "54.168.7.191";
     private string _port = "1935";
@@ -33,6 +34,8 @@ public class NetcodeServerManager : MonoBehaviour
     }
     private void Start()
     {
+        SceneManager.sceneLoaded += Sceneloaded;
+        SceneManager.sceneUnloaded += SceneUnloaded;
         NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
 
 #if SERVER
@@ -44,6 +47,20 @@ public class NetcodeServerManager : MonoBehaviour
 
 #endif
     }
+
+    private void SceneUnloaded(Scene arg0)
+    {
+        if (arg0.name == "InGameScene")
+        {
+            SceneManager.MoveGameObjectToScene(gameObject, arg0);
+        }
+    }
+
+    private void Sceneloaded(Scene arg0, LoadSceneMode arg1)
+    {
+
+    }
+
     private void Update()
     {
     }
@@ -220,6 +237,9 @@ public class NetcodeServerManager : MonoBehaviour
         }
 
     }
+
+    
+
     private void OnClientDisconnect(ulong clientId)
     {
         Debug.Log("Disconnect Client " + clientId);

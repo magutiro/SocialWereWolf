@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 public enum SkillPost
 {
@@ -15,14 +16,14 @@ public interface SkillBase
     public void Effect2();
 }
 
-public class PlayerSkillController : MonoBehaviour
+public class PlayerSkillController : NetworkBehaviour
 {
     public int SkillID = 1;
 
     SkillBase skill;
 
     float coolTime = 0;
-    string skillName;
+    public string skillName = "";
 
     Button SkillButton;
     public void Start()
@@ -33,7 +34,6 @@ public class PlayerSkillController : MonoBehaviour
             case 1:
                 gameObject.AddComponent<PlayerSkillHealer>();
                 skill = GetComponent<PlayerSkillHealer>();
-                Debug.Log("skill1");
                 break;
             case 2:
                 gameObject.AddComponent<PlayerSkillFortuner>(); 
@@ -44,8 +44,12 @@ public class PlayerSkillController : MonoBehaviour
     }
     void SceneUnloaded(Scene scene, LoadSceneMode mode)
     {
+        if (scene.name != "InGameScene" || !IsOwner)
+        {
+            return;
+        }
         SkillButton = GameObject.Find("SkillButton").GetComponent<Button>();
-        SkillButton.onClick.AddListener(() => OnSkillUse()); 
+        SkillButton.onClick.AddListener(() => OnSkillUse());
     }
     public void OnSkillUse()
     {

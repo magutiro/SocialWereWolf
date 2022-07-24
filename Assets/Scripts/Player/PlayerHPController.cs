@@ -4,15 +4,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
-public class PlayerHPController : MonoBehaviour
+public class PlayerHPController : NetworkBehaviour
 {
     [SerializeField]
     List<GameObject> _hpSell;
 
     PlayerController player;
 
-    public ReactiveProperty<int> HP = new ReactiveProperty<int>(10);
+    //public ReactiveProperty<int> HP = new ReactiveProperty<int>(10);
+    public NetworkVariable<int> playerHp = new NetworkVariable<int>(10);
 
 
     // Start is called before the first frame update
@@ -20,39 +22,87 @@ public class PlayerHPController : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
 
-        SceneManager.sceneLoaded += SceneUnloaded;
-        HP.Value = player._player._playerHP;
+        SceneManager.sceneLoaded += Sceneloaded;
 
-        HP.Zip(HP.Skip(1), (x, y) => new {
+        /*
+        HP.Zip(HP.Skip(1), (x, y) => new
+        {
             OldValue = x,
             NewValue = y
-        }).Subscribe(t => 
-            HPChanged(t.OldValue < t.NewValue, t.NewValue)
-            ) ;
+        }).Subscribe(t =>
+            HPChangedClientRpc(t.OldValue < t.NewValue, t.NewValue)
+        );
+        */
+        if (IsServer)
+        {
+            playerHp.Value = player._player._playerHP;
+        }
+        playerHp.OnValueChanged += OnChangedPlayerHP;
     }
-    void SceneUnloaded(Scene scene, LoadSceneMode mode)
+    
+    void Sceneloaded(Scene scene, LoadSceneMode mode)
     {
+        if (!IsOwner || scene.name != "InGameScene") return;
         var HPbar = GameObject.Find("HPBAR");
         _hpSell = new List<GameObject>();
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 10; i++)
         {
             _hpSell.Add(HPbar.transform.GetChild(i).gameObject);
         }
     }
-        void HPChanged(bool isHeal, int hp)
+    void OnChangedPlayerHP(int prev, int current)
     {
-        if (hp <= 0) Dead();
-        //HPが増えた場合緑を表示する
-        if (isHeal)
+        HPUIChanged(prev < current, current);
+    }
+    public void SetHp(int hp)
+    {
+        SetHPServerRpc(playerHp.Value + hp);
+    }
+    [ServerRpc(RequireOwnership = false)]
+    void SetHPServerRpc(int hp)
+    {
+        playerHp.Value = hp;
+    }
+    void HPUIChanged(bool isHeal, int hp)
+    {
+        Debug.Log(player._name.Value +"\n" +UserLoginData.userName.Value);
+        if (hp > 10)
         {
-            _hpSell[hp].transform.GetChild(1).gameObject.SetActive(false);
-            _hpSell[hp].transform.GetChild(0).gameObject.SetActive(true);
+            SetHPServerRpc(10);
+            return;
         }
-        //HPが減った場合赤を表示する
+        if (hp <= 0) 
+        { 
+            Dead();
+
+            for (int i = 0; i < 10; i++)
+            {
+                _hpSell[i].transform.GetChild(0).gameObject.SetActive(false);
+                _hpSell[i].transform.GetChild(1).gameObject.SetActive(true);
+            }
+        }
         else
         {
-            _hpSell[hp].transform.GetChild(0).gameObject.SetActive(false);
-            _hpSell[hp].transform.GetChild(1).gameObject.SetActive(true);
+            if (isHeal)
+            {
+                //HPが増えた場合緑を表示する
+                for (int i = 0; i < hp; i++)
+                {
+                    _hpSell[i].transform.GetChild(1).gameObject.SetActive(false);
+                    _hpSell[i].transform.GetChild(0).gameObject.SetActive(true);
+
+                }
+            }
+            else
+            {
+                //HPが減った場合赤を表示する
+                for (int i = hp - 1; i < _hpSell.Count; i++)
+                {
+                    _hpSell[i].transform.GetChild(0).gameObject.SetActive(false);
+                    _hpSell[i].transform.GetChild(1).gameObject.SetActive(true);
+                }
+            }
+            
         }
     }
     void Dead()

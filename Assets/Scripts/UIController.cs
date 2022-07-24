@@ -37,7 +37,7 @@ public class UIController : MonoBehaviour
     {
         if (_targetPlayer)
         {
-            Debug.Log(_targetPlayer.Killed(UserLoginData.userName.Value));
+            //Debug.Log(_targetPlayer.Killed(UserLoginData.userName.Value));
         }
     }
     public void OnUseButton()
@@ -49,8 +49,12 @@ public class UIController : MonoBehaviour
             case USEState.Item:
                 break;
             case USEState.Work:
-                Debug.Log(hitterObject.name);
-                hitterObject.GetComponent<WorkController>().OnUseButton();
+                if (hitterObject)
+                {
+                    Debug.Log(hitterObject.name);
+                    hitterObject.GetComponent<WorkController>().OnUseButton();
+
+                }
                 break;
         }
     }

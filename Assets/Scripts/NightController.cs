@@ -33,6 +33,8 @@ public class NightController : MonoBehaviour
     int targetPlayerID;
     int targetItemID;
 
+    PlayerManager playerManager;
+    PlayerSkillController player;
     // Start is called before the first frame update
     void Start()
     {
@@ -45,13 +47,39 @@ public class NightController : MonoBehaviour
             ItemPanel,
             ItemPanel2,
         };
-        for (int i = 0; i < 9; i++)
-        {
-            _playerButtonList.Add(_panelLootObject.transform.GetChild(i).GetChild(1).gameObject);
-            _playerButtonList[i].GetComponent<TextMeshProUGUI>().SetText("PlayerName");
-        }
-    }                
+        playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+        player = playerManager.myPlayer.GetComponent<PlayerSkillController>();
 
+        if(playerManager.myPlayer.GetComponent<PlayerJobState>().playerjob.Value == Job.Dual)
+        {
+            MenuPanel.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "èPåÇÇ∑ÇÈ";
+        }
+        else
+        {
+            MenuPanel.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "èAêQÇ∑ÇÈ";
+            MenuPanel.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(() => skip());
+        }
+
+        for (int i = 0; i < playerManager.playerList.Count; i++)
+        {
+            _playerButtonList.Add(_panelLootObject.transform.GetChild(i).gameObject);
+            _playerButtonList[i].transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().SetText(playerManager.playerList[i].GetComponent<PlayerController>()._name.Value);
+        }
+
+        SkillPanel.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = player.skillName;
+        switch (player.SkillID)
+        {
+            case 1:
+                //SkillPanel.transform.GetChild(0).GetChild(0).GetChild(1).GetComponent<Image>().sprite = (Sprite)Resourse("");
+                break;
+        }
+
+
+    }                
+    public void skip()
+    {
+
+    }
     // Update is called once per frame
     void Update()
     {
@@ -74,10 +102,10 @@ public class NightController : MonoBehaviour
     /// <param name="playerID"></param>
     public void OnKillSelectButton(int playerID)
     {
-        targetPlayerID = playerID;
+        targetPlayerID = playerID-1;
         KillPanel.SetActive(false);
         KillPanel2.SetActive(true);
-        KillPanel2.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().SetText("PlayerName");
+        KillPanel2.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().SetText(playerManager.playerList[targetPlayerID].GetComponent<PlayerController>()._name.Value);
         //KillPanel2.transform.GetChild(0).GetChild(1).GetComponent<Image>().sprite = (Sprite)Resources.Load("/Image/Charctor/StandingPict/0"+playerID+"-2.png");
     }
     /// <summary>
@@ -86,7 +114,7 @@ public class NightController : MonoBehaviour
     public void OnKillAcceptButton()
     {
         //ÉTÅ[ÉoÅ[Ç…èPåÇÇÃÉfÅ[É^ÇëóêM
-        RaidPlayerServerRpc();
+        RaidPlayerServerRpc(targetPlayerID);
         Debug.Log(targetPlayerID+"ÇèPåÇÇµÇ‹ÇµÇΩÅB");
         KillPanel2.SetActive(false);
         MenuPanel.SetActive(true);
@@ -151,9 +179,9 @@ public class NightController : MonoBehaviour
         MenuPanel.SetActive(true);
     }
     [ServerRpc]
-    public void RaidPlayerServerRpc()
+    public void RaidPlayerServerRpc(int raidPlayerId)
     {
-        gm.RaidPlayer(targetPlayerID);
+        gm.RaidPlayer(raidPlayerId);
     }
     [ServerRpc]
     public void UseItemServerRpc()

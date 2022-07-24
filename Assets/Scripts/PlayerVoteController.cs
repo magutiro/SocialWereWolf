@@ -6,16 +6,18 @@ using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using System;
 using System.Linq;
-
-public class PlayerVoteController :MonoBehaviour
+using TMPro;
+public class PlayerVoteController :NetworkBehaviour
 {
     PlayerController _playerController;
     Player _player;
-    int _targetPlayerId;
+    [SerializeField]
+    int _targetPlayerId = 0;
     PlayerManager _playerManager;
+
+    [SerializeField]
     VoteController _voteController;
 
-    public List<Button> _playerVoteButtons = new List<Button>();
     //‰Šú‰»
     private void Init()
     {
@@ -30,6 +32,7 @@ public class PlayerVoteController :MonoBehaviour
     }
     void SceneUnloaded(Scene scene, LoadSceneMode mode)
     {
+        if (scene.name != "InGameScene") return;
         _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         
         //GameObject.Find("VoteButton").GetComponent<Button>().onClick.AddListener(() => OnVoteButton());
@@ -37,12 +40,16 @@ public class PlayerVoteController :MonoBehaviour
     //“Š•[ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
     public void OnVoteButton()
     {
+        _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         _voteController.SetVoteServerRpc(_targetPlayerId);
+        Debug.Log(_targetPlayerId+"‚É“Š•[‚µ‚Ü‚µ‚½B");
     }
     //“Š•[æ‚ÌƒvƒŒƒCƒ„[‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
     public void OnSetVoteButton(int playerId)
     {
+        Debug.Log(playerId);
         _targetPlayerId = playerId;
+        _voteController.voteText.text = _playerManager.playerList[_targetPlayerId].GetComponent<PlayerController>()._name.Value + "‚É“Š•[’†";
     }
 
 }

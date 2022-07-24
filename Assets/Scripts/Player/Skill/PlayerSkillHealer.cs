@@ -8,14 +8,15 @@ public class PlayerSkillHealer : MonoBehaviour, SkillBase
 
     public void Effect1()
     {
+        Debug.Log("回復スキルを使用しました。");
         for(int i = 0; i < players.Count; i++)
         {
-            players[i].HP.Value += 3;
+            players[i].SetHp(3);
         }
     }
     public void Effect2()
     {
-        gameObject.GetComponent<PlayerHPController>().HP.Value += 5;
+        gameObject.GetComponent<PlayerHPController>().SetHp(5);
     }
     public void OnTriggerEnter2D(Collider2D collision)
     {

@@ -7,6 +7,7 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UniRx;
 using TMPro;
+using System;
 
 public class Player
 {
@@ -60,26 +61,34 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     private Vector2 _moveInput;
 
-    [SerializeField]
-    private NetworkVariable<NetworkString> _name = new NetworkVariable<NetworkString>();
+    public NetworkVariable<NetworkString> _name = new NetworkVariable<NetworkString>();
 
     private PlayerAnimController playerAnimController;
-    // Start is called before the first frame update
+
     void Start()
     {
-        _player = new Player(10f, 2, 20);
+        _player = new Player(10f, 2, 10);
 
-        SceneManager.sceneLoaded += SceneUnloaded;
         if (IsOwner)
         {
             setNameServerRpc(UserLoginData.userName.Value);
-            Debug.Log(UserLoginData.userName.Value);
             GameObject.Find("PlayerManager").GetComponent<PlayerManager>().myPlayer = this.gameObject;
         }
+        SceneManager.sceneLoaded += Sceneloaded;
+        SceneManager.sceneUnloaded += SceneUnloaded;
         Initialization();
         playerAnimController = GetComponent<PlayerAnimController>();
         GameObject.Find("PlayerManager").GetComponent<PlayerManager>().playerList.Add(this.gameObject);
     }
+
+    private void SceneUnloaded(Scene scene)
+    {
+        if (scene.name == "InGameScene")
+        {
+            //Destroy(this.gameObject);
+        }
+    }
+
     [ServerRpc(RequireOwnership = true)]
     void setNameServerRpc(string name)
     {
@@ -108,18 +117,22 @@ public class PlayerController : NetworkBehaviour
         }
         Debug.Log("èâä˙âª");
     }
-    void SceneUnloaded(Scene scene, LoadSceneMode mode)
+    void Sceneloaded(Scene scene, LoadSceneMode mode)
     {
-        Initialization();
-        gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        gameController._gameState
-            .DistinctUntilChanged()
-            .Subscribe(_ => StateInit());
-        gameController.AddObservable
-            .Where(x => x.Value == UserLoginData.userName.Value)
-            .Subscribe(x => _playerId.Value = x.Key);
-        PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
-        playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
+        if(scene.name == "InGameScene")
+        {
+            Initialization();
+            gameController = GameObject.Find("GameController").GetComponent<GameController>();
+            gameController._gameState
+                .DistinctUntilChanged()
+                .Subscribe(_ => StateInit());
+            gameController.AddObservable
+                .Where(x => x.Value == UserLoginData.userName.Value)
+                .Subscribe(x => _playerId.Value = x.Key);
+            PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
+            playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
+        }
+        
     }
     private void StateInit()
     {
@@ -191,19 +204,20 @@ public class PlayerController : NetworkBehaviour
             if (_moveVector2.Value.y == 0 && _moveVector2.Value.x == 0)
             {
                 rgd2D.velocity = Vector3.zero;
+                playerAnimController.StopAnimServerRpc();
             }
             else
             {
-                if (_moveVector2.Value.x > 0)
-                {
-                    transform.GetChild(2).localScale = new Vector3(-1, 1, 1);
-                }
-                else
-                {
-                    transform.GetChild(2).localScale = new Vector3(1, 1, 1);
-                }
                 MovePlayer();
             }
+        }
+        if (_moveVector2.Value.x > 0)
+        {
+            transform.GetChild(2).localScale = new Vector3(-1, 1, 1);
+        }
+        else if(_moveVector2.Value.x < 0)
+        {
+            transform.GetChild(2).localScale = new Vector3(1, 1, 1);
         }
     }
     /// <summary>
@@ -215,48 +229,37 @@ public class PlayerController : NetworkBehaviour
     {
         _moveVector = Axis;
         _moveVector2.Value = Axis;
-        FlipChangeClientRpc(_moveVector.x);
-    }
-    [ServerRpc]
-    void MovePlayerServerRpc()
-    {
-        _moveVector = _moveVector.normalized;
-        _moveVector2.Value = _moveVector2.Value.normalized;
-        rgd2D.velocity = _moveVector2.Value * _player._playerSpeed;
-        FlipChangeClientRpc(_moveVector2.Value.x);
     }
     public void MovePlayer()
     {
         _moveVector = _moveVector.normalized;
         _moveVector2.Value = _moveVector2.Value.normalized;
         rgd2D.velocity = _moveVector2.Value * _player._playerSpeed;
-        FlipChangeClientRpc(_moveVector2.Value.x);
     }
-    [ClientRpc]
-    public void FlipChangeClientRpc(float x)
+    [ServerRpc(RequireOwnership = false)]
+    public void PlayerKilledServerRpc(string name, string targetName)
     {
-        if (_sprite == null) return;
-        if (x == 0)
-        {
-            _sprite.flipX = _sprite.flipX;
-        }
-        else
-        {
-            _sprite.flipX = x > 0 ? true : false;
-        }
-    }
-
-    public bool Killed(string name)
-    {
-        KillClientRpc(name);
-        return false;
-    }
-    [ClientRpc]
-    void KillClientRpc(string name)
-    {
-        _sprite.color = Color.red;
         _player.playerState = Player.PlayerState.Dead;
-        Debug.Log(UserLoginData.userName + "Ç™" + name + "Ç…éEÇ≥ÇÍÇ‹ÇµÇΩ");
+        gameController.IsGameEnd();
+        KillClientRpc(name, targetName);
+    }
+    [ClientRpc]
+    void KillClientRpc(string name, string targetName)
+    {
+        _player.playerState = Player.PlayerState.Dead;
+        Debug.Log(targetName + "Ç™" + name + "Ç…éEÇ≥ÇÍÇ‹ÇµÇΩ");
+    }
+    [ServerRpc(RequireOwnership = false)]
+    public void PlayerVoteDeadServerRpc()
+    {
+        _player.playerState = Player.PlayerState.Dead;
+        gameController.IsGameEnd();
+        VoteDeadClientRpc();
+    }
+    [ClientRpc]
+    void VoteDeadClientRpc()
+    {
+        _player.playerState = Player.PlayerState.Dead;
     }
 
 }

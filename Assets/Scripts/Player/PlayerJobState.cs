@@ -15,9 +15,14 @@ public enum Job
 public static class PlayerJobSelecter
 {
     public static Dictionary<Job, int> DJobs = new Dictionary<Job, int>() {
+        /*
         {Job.Dual, 2},
         {Job.Madman, 1},
         {Job.Simmilar, 6}
+        */
+        {Job.Dual, 1},
+        {Job.Madman, 0},
+        {Job.Simmilar, 2}
     };
     public static List<Job> jobs = new List<Job>() { };
     public static void SetJobList()
@@ -60,7 +65,9 @@ public class PlayerJobState : NetworkBehaviour
     {
         if (IsServer)
         {
+            PlayerJobSelecter.SetJobList();
             playerjob.Value = PlayerJobSelecter.GetPlayerJob();
+            SetPlayerJobClientRpc(playerjob.Value);
             Debug.Log(playerjob.Value.ToString());
         }
     }
@@ -69,5 +76,10 @@ public class PlayerJobState : NetworkBehaviour
     void Update()
     {
 
+    }
+    [ClientRpc]
+    private void SetPlayerJobClientRpc(Job job)
+    {
+        playerjob.Value = job;
     }
 }

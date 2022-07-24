@@ -50,7 +50,6 @@ public class GameController : NetworkBehaviour
     private const int MAX_PLAYER = 9;
 
     public GameStateReactiveProperty _gameState = new GameStateReactiveProperty(GameState.Daytime);
-
     private NetworkVariable<int> _playerCount = new NetworkVariable<int>(0);
 
     private NetworkVariable<float> _gameTime = new NetworkVariable<float>(300);
@@ -73,6 +72,8 @@ public class GameController : NetworkBehaviour
     public VoteController _voteController;
 
     public GameObject NightCamera;
+
+    private bool isRaid = false;
     //オブジェクトがスポーンしたとき
     public override void OnNetworkSpawn()
     {
@@ -82,45 +83,8 @@ public class GameController : NetworkBehaviour
             SetPlayerCountServerRpc();
         }
     }
-    // サーバー側で実行される
-    [Unity.Netcode.ServerRpc(RequireOwnership = true)]
-    //サーバーが持つプレイヤーIDをクライアントに送信
-    private void SetPlayerCountServerRpc()
+    private void Awake()
     {
-        Dictionary<int, string> vueDictionary = ValueDictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
-
-        foreach (var dir in vueDictionary)
-        {
-            SetPlayerDictionaryClientRpc(dir.Key, dir.Value);
-        }
-        
-        //プレイヤーの人数カウントを追加
-        _playerCount.Value++;
-    }
-    void SetPlayerCount()
-    {
-
-    }
-
-    [Unity.Netcode.ClientRpc]
-    private void SetPlayerDictionaryClientRpc(int key, string value)
-    {
-        if (_playerId.ContainsKey(key))
-        {
-            _playerId.Add(key, value);
-        }
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        if (SceneManager.GetActiveScene().name == "InGameScene")
-        {
-            _timeText = GameObject.Find("TimeText").GetComponent<TextMeshProUGUI>();
-        }
-        //ゲームの状態が変化したときにInit()を実行
-        _gameState
-            .DistinctUntilChanged()
-            .Subscribe(_ => Init());
         //自身のプレイヤーカウントが増えたときにOnAddPlayerCountを呼び出す
         if (IsClient)
         {
@@ -134,10 +98,42 @@ public class GameController : NetworkBehaviour
         _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         pm = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
     }
+    // Start is called before the first frame update
+    void Start()
+    {
+        if (SceneManager.GetActiveScene().name == "InGameScene")
+        {
+            _timeText = GameObject.Find("TimeText").GetComponent<TextMeshProUGUI>();
+        }
+        //ゲームの状態が変化したときにInit()を実行
+        _gameState
+            .DistinctUntilChanged()
+            .Subscribe(_ => Init());
+        
+    }
+    void Update()
+    {
+        if (IsServer)
+        {
+            GameStateMethod();
+            // 残り時間を計算する
+            _gameTime.Value -= Time.deltaTime;
+            // ゼロ秒以下にならないようにする
+            if (_gameTime.Value <= 0.0f)
+            {
+                _gameTime.Value = 0.0f;
+            }
+        }
+        //xx：xx
+
+        _timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
+
+    }
+
     //プレイヤーカウントが増えたあとに自身のIDと名前を登録する
     private NetworkVariable<int>.OnValueChangedDelegate OnAddPlayerCount()
     {
-        if (IsClient)
+        if (IsOwner)
         {
             if (_playerId.ContainsKey(_playerCount.Value))
             {
@@ -153,59 +149,142 @@ public class GameController : NetworkBehaviour
         _playerId.Add(key, value);
     }
     // Update is called once per frame
-    void Update()
+
+    // サーバー側で実行される
+    [Unity.Netcode.ServerRpc(RequireOwnership = true)]
+    //サーバーが持つプレイヤーIDをクライアントに送信
+    private void SetPlayerCountServerRpc()
     {
-        GameStateMethod();
-        if (IsServer)
+        Dictionary<int, string> vueDictionary = ValueDictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        foreach (var dir in vueDictionary)
         {
-            // 残り時間を計算する
-            _gameTime.Value -= Time.deltaTime;
-            // ゼロ秒以下にならないようにする
-            if (_gameTime.Value <= 0.0f)
+            SetPlayerDictionaryClientRpc(dir.Key, dir.Value);
+        }
+
+        //プレイヤーの人数カウントを追加
+        _playerCount.Value++;
+    }
+
+    [Unity.Netcode.ClientRpc]
+    private void SetPlayerDictionaryClientRpc(int key, string value)
+    {
+        if (_playerId.ContainsKey(key))
+        {
+            _playerId.Add(key, value);
+        }
+    }
+    public void IsGameEnd()
+    {
+        int[] alive = { 0, 0 };
+        int[] dead = {0, 0};
+        foreach(var p in pm.playerList)
+        {
+            var player = p.GetComponent<PlayerController>()._player;
+            var job = p.GetComponent<PlayerJobState>().playerjob.Value;
+            if (player.playerState == Player.PlayerState.Alive)
             {
-                _gameTime.Value = 0.0f;
+                
+                alive[(int)job]++;
+            }
+            else
+            {
+                dead[(int)job]++;
             }
         }
-        //xx：xx
-
-        _timeText.text = Mathf.FloorToInt(_gameTime.Value / 60) + ":" + (_gameTime.Value % 60).ToString("f1");
-
-    }
-    void Init()
-    {
-        switch (_gameState.Value)
+        if(alive[0]+alive[1]+dead[0]+dead[1] != pm.playerList.Count)
         {
-            case GameState.Morning:
-                InitMorning();
-                break;
-            case GameState.Daytime:
-                InitDaytime();
-                break;
-            case GameState.Evening:
-                InitEvening();
-                break;
-            case GameState.Night:
-                InitNight();
-                break;
+            Debug.Log("人数エラー");
+        }
+        else if (alive[0] <= alive[1])
+        {
+            GameEnd(true);
+        }else if (dead[1] == 1)
+        {
+            GameEnd(false);
+        }
+        else
+        {
+            GameEnd(false);
         }
     }
-    void InitMorning()
+    public void GameEnd(bool isDualWinner)
+    {
+        if (isDualWinner) 
+        {
+            Debug.Log("デュアルの勝利"); 
+            GameEndServerRpc();
+            GameEndClientRpc();
+        }
+        else
+        {
+            Debug.Log("シミラーの勝利");
+            GameEndServerRpc();
+            GameEndClientRpc();
+        }
+    }
+    [ServerRpc(RequireOwnership = false)]
+    public void GameEndServerRpc()
+    {
+
+        SceneManager.LoadScene("TitleScene");
+        NetworkManager.Singleton.StopAllCoroutines();
+        NetworkManager.Singleton.Shutdown(false);
+        
+    }
+    [ClientRpc]
+    void GameEndClientRpc()
+    {
+        //if (IsHost) return;
+        SceneManager.LoadScene("TitleScene");
+    }
+
+    void Init()
+    {
+        if (IsServer)
+        {
+            switch (_gameState.Value)
+            {
+                case GameState.Morning:
+                    _gameTime.Value = _morningTime;
+                    InitMorningClientRpc();
+                    break;
+                case GameState.Daytime:
+                    _gameTime.Value = _dayTime;
+                    InitDaytimeClientRpc();
+                    break;
+                case GameState.Evening:
+                    _gameTime.Value = _eveningTime;
+                    InitEveningClientRpc();
+                    break;
+                case GameState.Night:
+                    _gameTime.Value = _nightTime;
+                    InitNightClientRpc();
+                    break;
+            }
+        }
+    }
+    [ClientRpc]
+    void InitMorningClientRpc()
     {
         Debug.Log("<color=blue>朝が来ました。</color>");
         if (IsServer)
         {
             _gameTime.Value = _morningTime;
+            if (isRaid)
+            {
+                pm.playerList[_raidPlayerID.Value].GetComponent<PlayerController>().PlayerKilledServerRpc(UserLoginData.userName.Value,pm.playerList[_raidPlayerID.Value].GetComponent<PlayerController>()._name.Value);
+            }
         }
-        pm.playerList[_raidPlayerID.Value].GetComponent<PlayerController>().Killed(UserLoginData.userName.Value);
+        
         _nightPanel.SetActive(false);
         _meetingPanel.SetActive(true);
         NightCamera.SetActive(false);
-        pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(true);
-        //_voteController.ResetVoteImages();
-        //Debug.Log(ValueDictionary[_raidPlayerID.Value] + "を襲撃しました。");
+        _voteController.ResetVoteImages();
     }
 
-    void InitDaytime()
+    [ClientRpc]
+    void InitDaytimeClientRpc()
     {
         Debug.Log("<color=blue>昼が来ました。</color>");
         if (IsServer)
@@ -215,7 +294,8 @@ public class GameController : NetworkBehaviour
         _dayPanel.SetActive(true);
         _meetingPanel.SetActive(false);
     }
-    void InitEvening()
+    [ClientRpc]
+    void InitEveningClientRpc()
     {
         Debug.Log("<color=blue>夕方が来ました。</color>");
         if (IsServer)
@@ -226,9 +306,9 @@ public class GameController : NetworkBehaviour
         _meetingPanel.SetActive(true);
         _votePanel.SetActive(true);
         _voteController.ResetVoteImages();
-        //pm.playerList[_raidPlayerID.Value].transform.GetChild(0).gameObject.SetActive(false);
     }
-    void InitNight()
+    [ClientRpc]
+    void InitNightClientRpc()
     {
         Debug.Log("<color=blue>夜が来ました。</color>");
         if (IsServer)
@@ -279,6 +359,7 @@ public class GameController : NetworkBehaviour
     {
         if (_gameTime.Value <= 0.0f)
         {
+            _voteController. VoteSubmit();
             _gameState.Value = GameState.Night;
         }
     }
@@ -291,7 +372,14 @@ public class GameController : NetworkBehaviour
     }
     public void RaidPlayer(int id)
     {
-        _raidPlayerID.Value = id;
+        if (IsServer)
+        {
+            _raidPlayerID.Value = id;
+            isRaid = true;
+        }
     }
-
+    public void SkipMeet()
+    {
+        _gameTime.Value = 1f;
+    }
 }

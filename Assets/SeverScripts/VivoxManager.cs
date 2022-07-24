@@ -9,7 +9,7 @@ using VivoxUnity;
 using UnityEngine.SceneManagement;
 using UniRx;
 using Unity.Netcode;
-public class VivoxManager : MonoBehaviour
+public class VivoxManager : SingletonMonoBehaviour<VivoxManager>
 {
     private Client _client = null;
     /// <summary>
@@ -58,6 +58,8 @@ public class VivoxManager : MonoBehaviour
     [SerializeField]
     float audioFadeIntensityByDistanceaudio = 1.2f;
 
+    PlayerManager playerManager;
+
     Channel3DProperties channel;
     private AccountId _accountId = null;
 
@@ -65,9 +67,13 @@ public class VivoxManager : MonoBehaviour
 #if CLIENT
     void Start()
     {
-        DontDestroyOnLoad(gameObject);
         // イベントにイベントハンドラーを追加
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        SceneManager.sceneLoaded += Sceneloaded;
+        SceneManager.sceneUnloaded += SceneUnloaded;
+
+        DontDestroyOnLoad(gameObject);
+
         if (channel is null)
         {
             channel = new Channel3DProperties(audibleDistance, conversationalDistance, audioFadeIntensityByDistanceaudio, AudioFadeModel.LinearByDistance);
@@ -78,25 +84,26 @@ public class VivoxManager : MonoBehaviour
         }
         _ear.ObserveEveryValueChanged(_ => _.position)
             .Subscribe(_ => Set3DChannel());
-
     }
+
 
     void Update()
     {
-        if (!_ear && GameObject.Find("Player(Clone)"))
+        if (!_ear && playerManager.myPlayer)
         {
-            _ear = _mouth = GameObject.Find("Player(Clone)").transform;
+            _ear = _mouth = playerManager.myPlayer.transform;
         }
     }
     private void Awake()
     {
-        if(_accountId is null)
+        if (_accountId is null)
         {
             CreateAccount("abc" + UserLoginData.userName.Value, UserLoginData.userName.Value);
             Debug.Log("クライアント作成");
             _client = new Client();
             _client.Initialize();
         }
+        playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
     }
     public void UninitializeClient()
     {
@@ -316,8 +323,31 @@ public class VivoxManager : MonoBehaviour
     void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
     {
         //Debug.Log("シーン読み込みクライアント削除");
-        //Logout();
-        //_client.Uninitialize();
+        /*
+        if(nextScene.name  != "InGameScene")
+        {
+            _client.Uninitialize();
+            Destroy(this);
+        }
+        */
+    }
+    private void Sceneloaded(Scene arg0, LoadSceneMode arg1)
+    {
+    }
+
+    private void SceneUnloaded(Scene arg0)
+    {
+        if (arg0.name == "InGameScene")
+        {
+            SceneManager.MoveGameObjectToScene(gameObject, arg0);
+            if (_client != null)
+            {
+                Logout();
+                _client.Uninitialize();
+                _client = null;
+            }
+            //Destroy(this.gameObject);
+        }
     }
 #endif
 }

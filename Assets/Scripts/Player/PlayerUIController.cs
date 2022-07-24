@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class PlayerUIController : MonoBehaviour
+public class PlayerUIController : NetworkBehaviour
 {
     public UIController _uIController;
     // Start is called before the first frame update
@@ -23,6 +24,7 @@ public class PlayerUIController : MonoBehaviour
 
     public void OnTriggerStay2D(Collider2D collision)
     {
+        if (!IsOwner) return;
         if (collision.gameObject.tag == "OtherPlayer")
         {
             _uIController._targetPlayer = collision.gameObject.GetComponent<PlayerController>();

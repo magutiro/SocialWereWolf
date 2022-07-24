@@ -119,6 +119,8 @@ GameObject:
   - component: {fileID: 4543249997456886917}
   - component: {fileID: 5736380490919376422}
   - component: {fileID: 6622930933304370120}
+  - component: {fileID: 8233615685040226832}
+  - component: {fileID: 4547809663219153651}
   m_Layer: 0
   m_Name: Player
   m_TagString: OtherPlayer
@@ -303,7 +305,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5486438273854066249}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b1a2fae5c2b46fa4eadd20c318e61b9a, type: 3}
   m_Name: 
@@ -376,7 +378,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 897ecdb59c9defa42bc98295315bdd78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerVoteButtons: []
+  _targetPlayerId: 0
+  _voteController: {fileID: 0}
 --- !u!114 &1089383652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,8 +429,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  HP:
-    value: 10
+  playerHp:
+    m_InternalValue: 10
 --- !u!114 &6622930933304370120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,6 +444,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkillID: 1
+--- !u!114 &8233615685040226832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486438273854066249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa4c9ffe1423b8e488c0c9000ba5d1aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uIController: {fileID: 0}
+  attackDistance: 5
+  Attack:
+    value: 3
+--- !u!114 &4547809663219153651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5486438273854066249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5187c1fc328628479ab19ba6504998b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerjob:
+    value: 0
 --- !u!1 &5486438275156418328
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,8 +500,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5486438275156418328}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.23, y: -0.04, z: -10}
-  m_LocalScale: {x: 1, y: 1.177163, z: 1}
+  m_LocalPosition: {x: -0.16, y: -0.04, z: -5.39}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5486438273854066255}
   m_RootOrder: 0
@@ -496,15 +529,15 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
+  near clip plane: 4
+  far clip plane: 20
   field of view: 60
   orthographic: 1
-  orthographic size: 5.4674296
-  m_Depth: -1
+  orthographic size: 4.7105136
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 23
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
