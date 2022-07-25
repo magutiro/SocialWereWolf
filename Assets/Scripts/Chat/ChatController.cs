@@ -38,7 +38,7 @@ public class ChatController : NetworkBehaviour
     {
         SendChatMessageServerRpc(UserLoginData.userName.Value, inputField.text);
     }
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void SendChatMessageServerRpc(string name, string chatText)
     {
         SendChatClientRpc(name, chatText);
