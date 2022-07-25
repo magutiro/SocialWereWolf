@@ -27,7 +27,7 @@ public class NightController : MonoBehaviour
     List<GameObject> _panelList;
 
     public GameObject _panelLootObject; 
-    public List<GameObject> _playerButtonList;
+    public List<GameObject> _playerButtonList = new List<GameObject>();
     public GameController gm;
 
     int targetPlayerID;
@@ -63,7 +63,8 @@ public class NightController : MonoBehaviour
         for (int i = 0; i < playerManager.playerList.Count; i++)
         {
             _playerButtonList.Add(_panelLootObject.transform.GetChild(i).gameObject);
-            _playerButtonList[i].transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().SetText(playerManager.playerList[i].GetComponent<PlayerController>()._name.Value);
+            Debug.Log(playerManager.playerList[i].GetComponent<PlayerController>()._name.Value);
+            _playerButtonList[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = playerManager.playerList[i].GetComponent<PlayerController>()._name.Value;
         }
 
         SkillPanel.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = player.skillName;
@@ -178,7 +179,7 @@ public class NightController : MonoBehaviour
         }
         MenuPanel.SetActive(true);
     }
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void RaidPlayerServerRpc(int raidPlayerId)
     {
         gm.RaidPlayer(raidPlayerId);

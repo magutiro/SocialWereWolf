@@ -65,17 +65,19 @@ public class PlayerHPController : NetworkBehaviour
     }
     void HPUIChanged(bool isHeal, int hp)
     {
+#if CLIENT
+        if (!IsOwner) return;
         Debug.Log(player._name.Value +"\n" +UserLoginData.userName.Value);
         if (hp > 10)
         {
             SetHPServerRpc(10);
             return;
         }
+        int hpCount = _hpSell.Count;
         if (hp <= 0) 
         { 
             Dead();
-
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < hpCount; i++)
             {
                 _hpSell[i].transform.GetChild(0).gameObject.SetActive(false);
                 _hpSell[i].transform.GetChild(1).gameObject.SetActive(true);
@@ -86,7 +88,7 @@ public class PlayerHPController : NetworkBehaviour
             if (isHeal)
             {
                 //HP‚ª‘‚¦‚½ê‡—Î‚ð•\Ž¦‚·‚é
-                for (int i = 0; i < hp; i++)
+                for (int i = 0; i <hpCount; i++)
                 {
                     _hpSell[i].transform.GetChild(1).gameObject.SetActive(false);
                     _hpSell[i].transform.GetChild(0).gameObject.SetActive(true);
@@ -104,6 +106,7 @@ public class PlayerHPController : NetworkBehaviour
             }
             
         }
+#endif
     }
     void Dead()
     {
