@@ -175,6 +175,7 @@ public class WorkManager : MonoBehaviour
             ImageList[i].sprite = Resources.Load<Sprite>("UI/Item/Item" + a);
             i++;
         }
+
     }
     /// <summary>
     /// 毎日のデイリーワークを設定する

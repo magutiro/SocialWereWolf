@@ -97,25 +97,23 @@ public class PlayerController : NetworkBehaviour
     private void Initialization()
     {
         //新しいInputシステム
+        if (!gameObject) return;
+        rgd2D = GetComponent<Rigidbody2D>();
+#if CLIENT
         var playerInput = GetComponent<PlayerInput>();
         move = playerInput.actions["Move"]; // "Move" Actionを利用する。
 
-        rgd2D = GetComponent<Rigidbody2D>();
-        _sprite = GetComponent<SpriteRenderer>();
 
-        parent = GameObject.Find("PlayerManager");
         joystick = GameObject.Find("Fixed Joystick").GetComponent<FixedJoystick>();
         _vivoxManager = GameObject.Find("Vivox").GetComponent<VivoxManager>();
-
         var otherNameText = transform.Find("Name").gameObject;
         otherNameText.GetComponent<TextMesh>().text = _name.Value.ToString();
-        Debug.Log(_name.Value.ToString());
+#endif
 
         if (!IsOwner)
         {
             transform.GetChild(0).gameObject.SetActive(false);
         }
-        Debug.Log("初期化");
     }
     void Sceneloaded(Scene scene, LoadSceneMode mode)
     {
@@ -129,8 +127,12 @@ public class PlayerController : NetworkBehaviour
             gameController.AddObservable
                 .Where(x => x.Value == UserLoginData.userName.Value)
                 .Subscribe(x => _playerId.Value = x.Key);
-            PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
-            playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
+            if (IsServer)
+            {
+                PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
+                playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
+
+            }
         }
         
     }
