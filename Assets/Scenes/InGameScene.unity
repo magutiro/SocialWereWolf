@@ -18258,7 +18258,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
-=======
 --- !u!1001 &1338434639
 PrefabInstance:
   m_ObjectHideFlags: 0
