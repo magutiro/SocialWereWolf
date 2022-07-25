@@ -17,6 +17,8 @@ public class Item
 }
 public class ItemController : NetworkBehaviour
 {
+    public Item item;
+
     
     void Start()
     {
@@ -24,6 +26,18 @@ public class ItemController : NetworkBehaviour
     }
 
     void Update()
+    {
+        
+    }
+
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Player")
+        {
+
+        }
+    }
+    public void OnTriggerExit2D(Collider2D collision)
     {
         
     }

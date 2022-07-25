@@ -188,13 +188,11 @@ public class PlayerController : NetworkBehaviour
             {
                 rgd2D.velocity = Vector3.zero;
                 SetMoveInputServerRpc(inputMoveAxis);
-                playerAnimController.StopAnimServerRpc();
                 //_moveVector = Vector3.zero;
                 //_moveVector2.Value = Vector2.zero;
             }
             else
             {
-                playerAnimController.StartAnimServerRpc();
                 
                 //サーバー側に入力Vectorを送信
                 _moveVector = inputMoveAxis;
@@ -212,6 +210,7 @@ public class PlayerController : NetworkBehaviour
             else
             {
                 MovePlayer();
+                playerAnimController.StartAnimServerRpc();
             }
         }
         if (_moveVector2.Value.x > 0)

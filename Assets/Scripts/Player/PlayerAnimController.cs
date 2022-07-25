@@ -32,11 +32,13 @@ public class PlayerAnimController : MonoBehaviour
     [ServerRpc]
     public void StartAnimServerRpc()
     {
-        StartAnimClientRpc("Running");
+        //StartAnimClientRpc("Running");
+        animator.SetBool("Running", true);
     }
     [ServerRpc]
     public void StopAnimServerRpc()
     {
-        StopAnimClientRpc("Running");
+        //StopAnimClientRpc("Running");
+        animator.SetBool("Running", false);
     }
 }
