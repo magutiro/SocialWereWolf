@@ -19,15 +19,20 @@ public class ItemController : NetworkBehaviour
 {
     public Item item;
 
-    
+    InventoryManager inventoryManager;
     void Start()
     {
-        
+        inventoryManager = GameObject.Find("InventoryManager").GetComponent<InventoryManager>();
     }
 
     void Update()
     {
         
+    }
+
+    public void OnUseButton()
+    {
+        inventoryManager.SetItem(item.name, true) ;
     }
 
     public void OnTriggerEnter2D(Collider2D collision)

@@ -14,6 +14,15 @@ public class PlayerAttackController : NetworkBehaviour
 
     public ReactiveProperty<int> Attack = new ReactiveProperty<int>(3);
     Button AttackButton;
+
+    void SetInit()
+    {
+        _uIController = GameObject.Find("UIController").GetComponent<UIController>();
+
+        if (!IsOwner) return;
+        AttackButton = GameObject.Find("AttackButton").GetComponent<Button>();
+        AttackButton.onClick.AddListener(() => OnAttackButton());
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +32,10 @@ public class PlayerAttackController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!_uIController && SceneManager.GetActiveScene().name == "InGameScene")
+        {
+            SetInit();
+        }
         if (IsOwner && _uIController && _uIController._targetPlayer)
         {
             float distance = (_uIController._targetPlayer.transform.position - transform.position).sqrMagnitude;
@@ -46,12 +59,7 @@ public class PlayerAttackController : NetworkBehaviour
     {
         if(scene.name == "InGameScene")
         {
-            _uIController = GameObject.Find("UIController").GetComponent<UIController>();
-
-            if (!IsOwner) return;
-            AttackButton = GameObject.Find("AttackButton").GetComponent<Button>();
-            AttackButton.onClick.AddListener(() => OnAttackButton());
-
+            SetInit();
         }
     }
     public void OnTriggerStay2D(Collider2D collision)
@@ -60,21 +68,6 @@ public class PlayerAttackController : NetworkBehaviour
         if (collision.gameObject.tag == "OtherPlayer")
         {
             _uIController._targetPlayer = collision.gameObject.GetComponent<PlayerController>();
-        }
-        if (collision.gameObject.tag == "work")
-        {
-            _uIController.hitterObject = collision.gameObject;
-            _uIController.useState = UIController.USEState.Work;
-        }
-        else if (collision.gameObject.tag == "item")
-        {
-            _uIController.hitterObject = collision.gameObject;
-            _uIController.useState = UIController.USEState.Item;
-        }
-        else if (collision.gameObject.tag == "dor")
-        {
-            _uIController.hitterObject = collision.gameObject;
-            _uIController.useState = UIController.USEState.Dor;
         }
 
     }

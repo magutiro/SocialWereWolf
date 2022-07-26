@@ -3,24 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
+using SQLiteUnity;
 
 public class InventoryManager : NetworkBehaviour
 {
-
-
     [SerializeField]
     GameObject iconPrefab = null;
     [SerializeField]
     Transform iconParent = null;
     [SerializeField]
     InventoryItem[] items = null;
+
+    List<Item> itemList;
     // アイテムを持ってるかどうかのフラグ
     bool[] itemFlags;
-    // アイテムのアイコンを管理するためのディクショナリ
-    Dictionary<int, GameObject> icons = new Dictionary<int, GameObject>();
+    int[] itemCount;
     void Start()
     {
-        itemFlags = new bool[items.Length];
+        itemFlags = new bool[9];
+        itemCount = new int[9];
+
+        SQLiteTable itemtable = ConnectSqlite.GetSqliteQuery("Select * from Item");
+        if (itemtable != null)
+        {
+            foreach (var row in itemtable.Rows)
+            {
+                var id = row["id"];
+                var name = row["name"];
+                Item itemTMP = new Item();
+                itemTMP.id = (int)id;
+                itemTMP.name = name.ToString();
+                itemList.Add(itemTMP);
+            }
+        }
     }
     // アイテムを持ってるかどうかを確認するメソッド
     public bool GetItemFlag(string itemName)
@@ -31,38 +46,66 @@ public class InventoryManager : NetworkBehaviour
     public void SetItem(string itemName, bool isOn)
     {
         int index = GetItemIndexFromName(itemName);
-        if (!itemFlags[index] && isOn)
+        int ItemIndex = 0
+            ;
+        //インベントリに空きがあるときに、新規アイテムを獲得したとき
+        if (index < 0 && isOn && IsItemGet())
         {
-            // アイテム未所持の状態で新しく入手したとき
-            // 新しいアイコンを生成し、インベントリのキャンバスの子に設定
+            // 新しいアイコンを生成し、インベントリの子に設定
             GameObject icon = Instantiate(iconPrefab, iconParent);
+            icon.transform.parent = iconParent;
+
+            for (int b = 0; b < itemFlags.Length; b++)
+            {
+                if (!itemFlags[b])
+                {
+                    icon.transform.SetSiblingIndex(b);
+                    ItemIndex = b;
+                }
+            }
+            itemFlags[ItemIndex] = true; 
+            itemCount[ItemIndex] = 1;
             // アイコンの画像を設定
-            icon.GetComponent<Image>().sprite = items[index].itemSprite;
-            icons.Add(index, icon);
+            icon.GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/Item/Item" + (index+1));
         }
-        else if (itemFlags[index] && !isOn)
+        // 既に持っているアイテムを獲得したとき
+        else if (itemFlags[ItemIndex])
         {
-            // アイテム所持中に削除するとき
-            GameObject icon = icons[index];
-            // アイテムのアイコンを削除
-            Destroy(icon);
-            // アイコンのディクショナリから対象のアイテムを削除
-            icons.Remove(index);
+            itemCount[ItemIndex]++;
         }
-        itemFlags[index] = isOn;
+    }
+    public void DeleteItemInInventory(string itemName)
+    {
+        int index = GetItemIndexFromName(itemName);
+        if(index >= 0)
+        {
+
+        }
+    }
+    bool IsItemGet()
+    {
+        for (int b = 0; b < itemFlags.Length; b++)
+        {
+            if (!itemFlags[b])
+            {
+                return true ;
+            }
+        }
+        return false;
     }
     int GetItemIndexFromName(string itemName)
     {
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i].itemName == itemName)
+            if (itemList[i].name == itemName)
             {
                 return i;
             }
         }
         Debug.LogWarning("指定されたアイテム名が間違っているか存在しません");
-        return 0;
+        return -1;
     }
+}
 
 
 
@@ -72,46 +115,4 @@ public class InventoryItem
 {
     public string itemName = "";
     public Sprite itemSprite = null;
-}
-
-/*public int MAX_ITEMS = 9;
-    public List<ItemController> _myInventory;
-    public List<Image> _image;  //インベントリの各イメージが入る
-
-    public void GetItem(ItemController _myInventory)
-    {
-        //引数のアイテムをインベントリに加える
-    }
-    public void DropItem(int MAX_ITEMS)
-    {
-        //引数の番号にあるアイテムを地面にドロップする
-    }
-    public void RemoveItem(int MAX_ITEMS)
-    {
-        //引数の番号にあるアイテムを消去する
-    }
-    public void DropItem(ItemController _myInventory)
-    {
-        //引数のアイテムがインベントリにあればドロップする
-    }
-    public void RemoveItem(ItemController _myInventory)
-    {
-        //引数のアイテムがインベントリにあれば消去する
-    }
-    public void ViewItem()
-    {
-        //_myInventorにあるアイテムをインベントリに表示させる
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }*/
 }

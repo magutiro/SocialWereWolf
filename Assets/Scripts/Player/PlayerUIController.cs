@@ -34,7 +34,7 @@ public class PlayerUIController : NetworkBehaviour
             _uIController.hitterObject = collision.gameObject;
             _uIController.useState = UIController.USEState.Work;
         }
-        else if (collision.gameObject.tag == "item")
+        else if (collision.gameObject.tag == "Item")
         {
             _uIController.hitterObject = collision.gameObject;
             _uIController.useState = UIController.USEState.Item;

@@ -16,11 +16,10 @@ public class PlayerHPController : NetworkBehaviour
     //public ReactiveProperty<int> HP = new ReactiveProperty<int>(10);
     public NetworkVariable<int> playerHp = new NetworkVariable<int>(10);
 
-
+    public GameObject HPSells;
     // Start is called before the first frame update
     void Start()
     {
-        player = GetComponent<PlayerController>();
 
         SceneManager.sceneLoaded += Sceneloaded;
 
@@ -33,22 +32,34 @@ public class PlayerHPController : NetworkBehaviour
             HPChangedClientRpc(t.OldValue < t.NewValue, t.NewValue)
         );
         */
+    }
+    void Initialization()
+    {
+        player = GetComponent<PlayerController>();
+        HPSells = GameObject.Find("HPBAR");
+        _hpSell = new List<GameObject>();
+        for (int i = 0; i < 10; i++)
+        {
+            _hpSell.Add(HPSells.transform.GetChild(i).gameObject);
+        }
         if (IsServer)
         {
             playerHp.Value = player._player._playerHP;
         }
         playerHp.OnValueChanged += OnChangedPlayerHP;
     }
-    
+    private void Update()
+    {
+        if (!HPSells && SceneManager.GetActiveScene().name == "InGameScene")
+        {
+            Initialization();
+        }
+    }
+
     void Sceneloaded(Scene scene, LoadSceneMode mode)
     {
         if (!IsOwner || scene.name != "InGameScene") return;
-        var HPbar = GameObject.Find("HPBAR");
-        _hpSell = new List<GameObject>();
-        for (int i = 0; i < 10; i++)
-        {
-            _hpSell.Add(HPbar.transform.GetChild(i).gameObject);
-        }
+        Initialization();
     }
     void OnChangedPlayerHP(int prev, int current)
     {
@@ -67,7 +78,7 @@ public class PlayerHPController : NetworkBehaviour
     {
 #if CLIENT
         if (!IsOwner) return;
-        Debug.Log(player._name.Value +"\n" +UserLoginData.userName.Value);
+        Debug.Log(player._name.Value +" "+hp+"\n" +UserLoginData.userName.Value+ playerHp.Value);
         if (hp > 10)
         {
             SetHPServerRpc(10);
@@ -88,7 +99,7 @@ public class PlayerHPController : NetworkBehaviour
             if (isHeal)
             {
                 //HPÇ™ëùÇ¶ÇΩèÍçáóŒÇï\é¶Ç∑ÇÈ
-                for (int i = 0; i <hpCount; i++)
+                for (int i = 0; i < hp; i++)
                 {
                     _hpSell[i].transform.GetChild(1).gameObject.SetActive(false);
                     _hpSell[i].transform.GetChild(0).gameObject.SetActive(true);
@@ -98,8 +109,9 @@ public class PlayerHPController : NetworkBehaviour
             else
             {
                 //HPÇ™å∏Ç¡ÇΩèÍçáê‘Çï\é¶Ç∑ÇÈ
-                for (int i = hp - 1; i < _hpSell.Count; i++)
+                for (int i = hp; i < _hpSell.Count; i++)
                 {
+                    Debug.Log("HPÇÕ"+i);
                     _hpSell[i].transform.GetChild(0).gameObject.SetActive(false);
                     _hpSell[i].transform.GetChild(1).gameObject.SetActive(true);
                 }
@@ -111,10 +123,7 @@ public class PlayerHPController : NetworkBehaviour
     void Dead()
     {
         Debug.Log("éÄñSÇµÇ‹ÇµÇΩ");
+        GetComponent<PlayerController>().PlayerKilledServerRpc(UserLoginData.userName.Value, GetComponent<PlayerController>()._name.Value);
     }
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

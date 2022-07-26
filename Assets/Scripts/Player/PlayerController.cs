@@ -63,22 +63,18 @@ public class PlayerController : NetworkBehaviour
 
     public NetworkVariable<NetworkString> _name = new NetworkVariable<NetworkString>();
 
+    TextMesh nameText = new TextMesh();
+
     private PlayerAnimController playerAnimController;
 
     void Start()
     {
         _player = new Player(10f, 2, 10);
+        GameObject.Find("PlayerManager").GetComponent<PlayerManager>().playerList.Add(this.gameObject);
 
-        if (IsOwner)
-        {
-            setNameServerRpc(UserLoginData.userName.Value);
-            GameObject.Find("PlayerManager").GetComponent<PlayerManager>().myPlayer = this.gameObject;
-        }
         SceneManager.sceneLoaded += Sceneloaded;
         SceneManager.sceneUnloaded += SceneUnloaded;
         Initialization();
-        playerAnimController = GetComponent<PlayerAnimController>();
-        GameObject.Find("PlayerManager").GetComponent<PlayerManager>().playerList.Add(this.gameObject);
     }
 
     private void SceneUnloaded(Scene scene)
@@ -98,6 +94,7 @@ public class PlayerController : NetworkBehaviour
     {
         //êVÇµÇ¢InputÉVÉXÉeÉÄ
         if (!gameObject) return;
+
         rgd2D = GetComponent<Rigidbody2D>();
 #if CLIENT
         var playerInput = GetComponent<PlayerInput>();
@@ -106,33 +103,45 @@ public class PlayerController : NetworkBehaviour
 
         joystick = GameObject.Find("Fixed Joystick").GetComponent<FixedJoystick>();
         _vivoxManager = GameObject.Find("Vivox").GetComponent<VivoxManager>();
-        var otherNameText = transform.Find("Name").gameObject;
-        otherNameText.GetComponent<TextMesh>().text = _name.Value.ToString();
+        nameText =transform.GetChild(1).GetComponent<TextMesh>();
+        nameText.text = _name.Value.ToString();
+
+        if (IsOwner)
+        {
+            setNameServerRpc(UserLoginData.userName.Value);
+            GameObject.Find("PlayerManager").GetComponent<PlayerManager>().myPlayer = this.gameObject;
+        }
 #endif
 
+        playerAnimController = GetComponent<PlayerAnimController>();
         if (!IsOwner)
         {
             transform.GetChild(0).gameObject.SetActive(false);
+        }
+    }
+    void InitInGame()
+    {
+        gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        Debug.Log("<color=red>GameControllerÇÃê›íË</color>" + gameController);
+        Initialization();
+        gameController._gameState
+            .DistinctUntilChanged()
+            .Subscribe(_ => StateInit());
+        gameController.AddObservable
+            .Where(x => x.Value == UserLoginData.userName.Value)
+            .Subscribe(x => _playerId.Value = x.Key);
+        if (IsServer)
+        {
+            PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
+            playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
+
         }
     }
     void Sceneloaded(Scene scene, LoadSceneMode mode)
     {
         if(scene.name == "InGameScene")
         {
-            Initialization();
-            gameController = GameObject.Find("GameController").GetComponent<GameController>();
-            gameController._gameState
-                .DistinctUntilChanged()
-                .Subscribe(_ => StateInit());
-            gameController.AddObservable
-                .Where(x => x.Value == UserLoginData.userName.Value)
-                .Subscribe(x => _playerId.Value = x.Key);
-            if (IsServer)
-            {
-                PlayerSpwnPoint playerSpwnPoint = GameObject.Find("PlayerSpwnPoint").GetComponent<PlayerSpwnPoint>();
-                playerSpwnPoint.SpawnPlayer(this.gameObject, _playerId.Value);
-
-            }
+            InitInGame();
         }
         
     }
@@ -173,6 +182,19 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!gameController)
+        {
+            if (SceneManager.GetActiveScene().name == "InGameScene")
+            {
+                Initialization();
+                InitInGame();
+
+            }
+        }
+        if(nameText.text != _name.Value)
+        {
+            nameText.text = _name.Value.ToString();
+        }
         //rgd2D.velocity = Vector3.zero;
         //_moveVector = Vector3.zero;
         //_moveVector2.Value = Vector2.zero;
@@ -244,12 +266,14 @@ public class PlayerController : NetworkBehaviour
         _player.playerState = Player.PlayerState.Dead;
         gameController.IsGameEnd();
         KillClientRpc(name, targetName);
+        _name.Value = _name.Value + "éÄñS";
     }
     [ClientRpc]
     void KillClientRpc(string name, string targetName)
     {
         _player.playerState = Player.PlayerState.Dead;
         Debug.Log(targetName + "Ç™" + name + "Ç…éEÇ≥ÇÍÇ‹ÇµÇΩ");
+        GetComponent<NetworkObject>().Despawn();
     }
     [ServerRpc(RequireOwnership = false)]
     public void PlayerVoteDeadServerRpc()

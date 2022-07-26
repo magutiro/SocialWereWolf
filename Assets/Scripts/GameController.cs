@@ -74,6 +74,7 @@ public class GameController : NetworkBehaviour
     public GameObject NightCamera;
 
     private bool isRaid = false;
+    private AsyncOperation async;
     //オブジェクトがスポーンしたとき
     public override void OnNetworkSpawn()
     {
@@ -94,9 +95,14 @@ public class GameController : NetworkBehaviour
         {
             PlayerJobSelecter.SetJobList();
         }
+        Initialization();
+    }
+    private void Initialization()
+    {
         _playerVoteController = GameObject.Find("Player(Clone)").GetComponent<PlayerVoteController>();
         _voteController = GameObject.Find("VoteController").GetComponent<VoteController>();
         pm = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+
     }
     // Start is called before the first frame update
     void Start()
@@ -113,6 +119,10 @@ public class GameController : NetworkBehaviour
     }
     void Update()
     {
+        if (!pm)
+        {
+            Initialization();
+        }
         if (IsServer)
         {
             GameStateMethod();
@@ -214,31 +224,51 @@ public class GameController : NetworkBehaviour
         {
             Debug.Log("デュアルの勝利"); 
             GameEndServerRpc();
-            GameEndClientRpc();
+            GameEndClientRpc(isDualWinner);
         }
         else
         {
             Debug.Log("シミラーの勝利");
             GameEndServerRpc();
-            GameEndClientRpc();
+            GameEndClientRpc(isDualWinner);
         }
     }
     [ServerRpc(RequireOwnership = false)]
     public void GameEndServerRpc()
     {
 
-        SceneManager.LoadScene("TitleScene");
-        NetworkManager.Singleton.StopAllCoroutines();
-        NetworkManager.Singleton.Shutdown(false);
+        StartCoroutine("LoadData");
         
     }
     [ClientRpc]
-    void GameEndClientRpc()
+    void GameEndClientRpc(bool isWinner)
     {
         //if (IsHost) return;
-        SceneManager.LoadScene("TitleScene");
+        //SceneManager.LoadScene("ResultScene");
+        //　コルーチンを開始
+        if (isWinner)
+        {
+            GameResult.result = "デュアルの勝利";
+        }
+        else
+        {
+            GameResult.result = "シミラーの勝利";
+        }
+        StartCoroutine("LoadData");
     }
+    IEnumerator LoadData()
+    {
+        // シーンの読み込みをする
+        async = SceneManager.LoadSceneAsync("ResultScene");
 
+        //　読み込みが終わるまで進捗状況をスライダーの値に反映させる
+        while (!async.isDone)
+        {
+            yield return null;
+        }
+        NetworkManager.Singleton.StopAllCoroutines();
+        NetworkManager.Singleton.Shutdown(false);
+    }
     void Init()
     {
         if (IsServer)
@@ -382,4 +412,8 @@ public class GameController : NetworkBehaviour
     {
         _gameTime.Value = 1f;
     }
+}
+public static class GameResult
+{
+    public static string result = "ゲーム終了";
 }

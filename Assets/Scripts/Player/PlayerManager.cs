@@ -23,7 +23,12 @@ public class PlayerManager : NetworkBehaviour {
         Debug.Log("PlayerManagerStart");
     }
 
+    void SetInit()
+    {
 
+        gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        gameController.pm = this;
+    }
     void Awake()
     {
 
@@ -31,7 +36,10 @@ public class PlayerManager : NetworkBehaviour {
     }
     void Update()
     {
-
+        if (!gameController && SceneManager.GetActiveScene().name == "InGameScene")
+        {
+            SetInit();
+        }
     }
     private void SceneChanged(Scene arg0, Scene arg1)
     {
@@ -39,12 +47,7 @@ public class PlayerManager : NetworkBehaviour {
     }
     private void Sceneloaded(Scene scene, LoadSceneMode arg1)
     {
-        if(scene.name == "InGameScene")
-        {
-            gameController = GameObject.Find("GameController").GetComponent<GameController>();
-            gameController.pm = this;
-            Debug.Log("PlayerManagerSceneLoad");
-        }
+        
         if (scene.name == "LobbyScene")
         {
             //DontDestroyOnLoad(gameObject);

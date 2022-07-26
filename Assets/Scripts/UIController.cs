@@ -47,13 +47,17 @@ public class UIController : MonoBehaviour
             case USEState.Dor:
                 break;
             case USEState.Item:
+                if (hitterObject)
+                {
+                    Debug.Log(hitterObject.name);
+                    hitterObject.GetComponent<ItemController>().OnUseButton();
+                }
                 break;
             case USEState.Work:
                 if (hitterObject)
                 {
                     Debug.Log(hitterObject.name);
                     hitterObject.GetComponent<WorkController>().OnUseButton();
-
                 }
                 break;
         }

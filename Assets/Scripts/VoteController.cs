@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class VoteController : NetworkBehaviour
 {
@@ -20,16 +21,21 @@ public class VoteController : NetworkBehaviour
 
     private void Start()
     {
+        SetInit();
+    }
+    private void SetInit()
+    {
         playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
         gm = playerManager.gameController;
 
         GameObject parent = _playerVoteButtons[0].transform.parent.parent.gameObject;
-        Debug.Log(parent.name);
+        _playerVoteDic = new Dictionary<int, int>();
         for (int i = 0; i < playerManager.playerList.Count; i++)
         {
-            Debug.Log("ボタン"+i);
+            Debug.Log("ボタン" + i);
             var index = i;
-            _playerVoteButtons[i].onClick.AddListener(() => OnSetVoteButton(index)); 
+            _playerVoteButtons[i].onClick.RemoveAllListeners();
+            _playerVoteButtons[i].onClick.AddListener(() => OnSetVoteButton(index));
             TextMeshProUGUI tmpTEXT = parent.transform.GetChild(i).GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>();
             tmpTEXT.text = playerManager.playerList[i].GetComponent<PlayerController>()._name.Value;
             _playerVoteDic.Add(i, 0);
@@ -37,7 +43,11 @@ public class VoteController : NetworkBehaviour
     }
 
     private void Update()
-    {
+    {   
+        if (!gm && SceneManager.GetActiveScene().name == "InGameScene")
+        {
+            SetInit();
+        }
         if(voteCount.Value == playerManager.playerList.Count)
         {
             if (IsServer)

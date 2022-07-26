@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class NightController : MonoBehaviour
 {
@@ -38,7 +39,12 @@ public class NightController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _panelList = new List<GameObject>() { 
+        SetInit();
+
+    }      
+    void SetInit()
+    {
+        _panelList = new List<GameObject>() {
             MenuPanel,
             KillPanel,
             KillPanel2,
@@ -50,7 +56,7 @@ public class NightController : MonoBehaviour
         playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
         player = playerManager.myPlayer.GetComponent<PlayerSkillController>();
 
-        if(playerManager.myPlayer.GetComponent<PlayerJobState>().playerjob.Value == Job.Dual)
+        if (playerManager.myPlayer.GetComponent<PlayerJobState>().playerjob.Value == Job.Dual)
         {
             MenuPanel.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "èPåÇÇ∑ÇÈ";
         }
@@ -74,9 +80,7 @@ public class NightController : MonoBehaviour
                 //SkillPanel.transform.GetChild(0).GetChild(0).GetChild(1).GetComponent<Image>().sprite = (Sprite)Resourse("");
                 break;
         }
-
-
-    }                
+    }
     public void skip()
     {
 
@@ -84,7 +88,10 @@ public class NightController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!playerManager && SceneManager.GetActiveScene().name == "InGemeContorler")
+        {
+            SetInit();
+        }
     }
 
     /// <summary>

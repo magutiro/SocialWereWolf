@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class TitleManager : MonoBehaviour
 {
@@ -19,18 +20,25 @@ public class TitleManager : MonoBehaviour
     //　読み込み率を表示するスライダー
     [SerializeField]
     private Slider slider = null;
+
+    [SerializeField]
+    TextMeshProUGUI result = new TextMeshProUGUI();
     // Start is called before the first frame update
     void Start()
     {
 #if SERVER
         SceneManager.LoadScene("LobbyScene");
 #endif
+
+        if (result)
+        {
+            result.text = "";
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
     }
     public void OnClickLoginButton()
     {
@@ -42,6 +50,10 @@ public class TitleManager : MonoBehaviour
         NextScene();
     }
 
+    public void OnHomeScene()
+    {
+        SceneManager.LoadScene("LobbyScene");
+    }
     /// <summary>
     /// アプリ終了ボタン押下時の処理
     /// </summary>
